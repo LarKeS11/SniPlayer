@@ -1,6 +1,7 @@
 package com.example.lrsplayer.data.firebase
 
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
@@ -10,6 +11,8 @@ class FirebaseService(
     private val signInClient: GoogleSignInClient
 ):FirebaseServiceInterface {
 
+    init {
+    }
     private val auth = Firebase.auth
     override fun getSignInClient(): GoogleSignInClient = signInClient
 

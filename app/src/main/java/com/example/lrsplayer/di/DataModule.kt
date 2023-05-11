@@ -1,9 +1,9 @@
 package com.example.lrsplayer.di
 
 import android.content.Context
-import com.example.lrsplayer.R
-import com.example.lrsplayer.data.DataRepository
+import com.example.lrsplayer.data.firebase.DataFirebaseRepository
 import com.example.lrsplayer.data.firebase.FirebaseService
+import com.example.lrsplayer.domain.repository.FirebaseRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -23,7 +23,7 @@ object DataModule {
         context: Context,
     ): GoogleSignInClient {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(R.string.default_web_client_id))
+            .requestIdToken("1060043079380-5k7e00pghiqv6eol7q76i0tq7a8d7886.apps.googleusercontent.com")
             .requestEmail()
             .build()
         return GoogleSignIn.getClient(context, gso)
@@ -39,14 +39,14 @@ object DataModule {
         )
     }
 
+
+
     @Singleton
     @Provides
-    fun provideDataRepository(
+    fun provideFirebaseRepository(
         firebaseService: FirebaseService
-    ): DataRepository{
-        return DataRepository(
-            firebaseService = firebaseService
-        )
+    ):FirebaseRepository{
+        return DataFirebaseRepository(firebaseService)
     }
 
 }

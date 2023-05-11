@@ -1,10 +1,14 @@
 package com.example.lrsplayer.presentation.screen.sign_up_screen
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -20,6 +24,7 @@ import com.example.lrsplayer.presentation.screen.sign_in_screen.SignInViewModel
 import com.example.lrsplayer.presentation.theme.sf_pro_text
 import com.example.lrsplayer.presentation.views.*
 import com.example.lrsplayer.until.ThemeColors
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 
 @Composable
 fun SignUpScreen(
@@ -29,6 +34,21 @@ fun SignUpScreen(
 ) {
 
     val state by viewModel.state.collectAsState()
+
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
+        val account = task.result
+        if(account != null) {
+            viewModel.makeRequest(account.idToken!!)
+        }
+    }
+
+    LaunchedEffect(state){
+        if(state.isSuccess){
+            navController.navigate(Screen.SplashScreen.route)
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -90,6 +110,21 @@ fun SignUpScreen(
                 }
             }
         }
+
+        item {
+            Column(
+                modifier = Modifier.padding(vertical = 15.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if(state.isLoading){
+                    CircularProgressIndicator()
+                }
+                if(state.error.isNotEmpty()){
+                    ErrorView(error = state.error, size = 12)
+                }
+            }
+        }
+
         item{
             Spacer(modifier = Modifier.height(16.dp))
             Box(
@@ -97,20 +132,20 @@ fun SignUpScreen(
                 contentAlignment = Alignment.CenterEnd
             ) {
                 HighLightClickableText(text = "Sign in") {
-                    navController.navigate(Screen.SignInScreen.route)
+                  //  navController.navigate(Screen.SignInScreen.route)
                 }
             }
         }
         item {
             Spacer(modifier = Modifier.height(40.dp))
             PrimaryButton("Sign Up"){
-
+                viewModel.makeLoginAuthRequest()
             }
         }
         item {
             Spacer(modifier = Modifier.height(40.dp))
             GoogleButton(colors){
-
+                launcher.launch(viewModel.getSignInClient().signInIntent)
             }
         }
     }
