@@ -1,7 +1,10 @@
 package com.example.lrsplayer.di
 
 import com.example.lrsplayer.domain.repository.FirebaseRepository
+import com.example.lrsplayer.domain.repository.LocalRepository
+import com.example.lrsplayer.domain.usecase.UseFirebaseSignInWithLogin
 import com.example.lrsplayer.domain.usecase.UseFirebaseSignUpWithLogin
+import com.example.lrsplayer.domain.usecase.UseGetAudioFileFromUri
 import com.example.lrsplayer.domain.usecase.UseGetFirebaseAuth
 import com.example.lrsplayer.domain.usecase.UseGetGoogleSignInClient
 import com.example.lrsplayer.domain.usecase.UseMakeGoogleFirebaseAuthRequest
@@ -36,5 +39,17 @@ object DomainModule {
     @Provides
     fun provideUseFirebaseSignUpWithLogin():UseFirebaseSignUpWithLogin{
         return UseFirebaseSignUpWithLogin()
+    }
+
+    @Provides
+    fun provideUseFirebaseSignInWithLogin():UseFirebaseSignInWithLogin{
+        return UseFirebaseSignInWithLogin()
+    }
+
+    @Provides
+    fun provideUseGetAudioFileFromUri(
+        localRepository: LocalRepository
+    ):UseGetAudioFileFromUri{
+        return UseGetAudioFileFromUri(localRepository)
     }
 }

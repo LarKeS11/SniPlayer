@@ -5,6 +5,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +34,6 @@ fun SignInScreen(
 
     val state by viewModel.state.collectAsState()
 
-    val hasBeenAuthorizated by viewModel.hasBeenAuthorizated.collectAsState()
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
@@ -43,8 +43,8 @@ fun SignInScreen(
         }
     }
 
-    LaunchedEffect(hasBeenAuthorizated){
-        if(hasBeenAuthorizated){
+    LaunchedEffect(state){
+        if(state.isSuccess){
             navController.navigate(Screen.SplashScreen.route)
         }
     }
@@ -113,10 +113,23 @@ fun SignInScreen(
                 }
             }
         }
+
+        item {
+            Column(
+                modifier = Modifier.padding(vertical = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if(state.isLoading) CircularProgressIndicator()
+                if(state.error.isNotEmpty()) ErrorView(error = state.error, size = 12)
+
+            }
+
+        }
+
         item { 
             Spacer(modifier = Modifier.height(40.dp))
             PrimaryButton("Sign In"){
-
+                viewModel.makeLoginAuthRequest()
             }
         }
         item {

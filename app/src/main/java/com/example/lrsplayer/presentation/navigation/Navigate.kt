@@ -8,6 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.lrsplayer.presentation.screen.music_screen.MusicScreen
 import com.example.lrsplayer.presentation.screen.sign_in_screen.SignInScreen
 import com.example.lrsplayer.presentation.screen.sign_up_screen.SignUpScreen
 import com.example.lrsplayer.presentation.screen.splash_screen.SplashScreen
@@ -44,6 +45,12 @@ fun Navigate(
             route = Screen.SignUpScreen.route
         ){
             SignUpScreen(navController = navController, colors = appColors)
+        }
+
+        composable(
+            route = Screen.MusicScreen.route
+        ){
+            MusicScreen(colors = appColors, navController = navController)
         }
 
     }

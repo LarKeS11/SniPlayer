@@ -3,7 +3,10 @@ package com.example.lrsplayer.di
 import android.content.Context
 import com.example.lrsplayer.data.firebase.DataFirebaseRepository
 import com.example.lrsplayer.data.firebase.FirebaseService
+import com.example.lrsplayer.data.local.DataLocalRepository
+import com.example.lrsplayer.data.local.audio_service.AudioService
 import com.example.lrsplayer.domain.repository.FirebaseRepository
+import com.example.lrsplayer.domain.repository.LocalRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -47,6 +50,20 @@ object DataModule {
         firebaseService: FirebaseService
     ):FirebaseRepository{
         return DataFirebaseRepository(firebaseService)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAudioService(context: Context):AudioService{
+        return AudioService(context = context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideLocalRepository(
+        audioService: AudioService
+    ):LocalRepository{
+        return DataLocalRepository(audioService)
     }
 
 }

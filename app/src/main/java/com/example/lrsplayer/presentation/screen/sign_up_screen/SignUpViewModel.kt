@@ -61,7 +61,7 @@ class SignUpViewModel @Inject constructor(
 
     fun makeLoginAuthRequest(){
         Log.d("asdasdsad","it.message.toString()")
-        useFirebaseSignUpWithLogin.invoke(_login.value, _password.value).onEach {res ->
+        useFirebaseSignUpWithLogin.invoke(_login.value, _password.value, _name.value).onEach {res ->
             Log.d("asdasdsad","it.message.toString()")
             when(res){
                 is Resource.Loading -> {

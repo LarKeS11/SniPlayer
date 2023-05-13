@@ -32,10 +32,11 @@ fun SplashScreen(
 
     LaunchedEffect(viewModel.firebaseAuth){
         if(viewModel.firebaseAuth.currentUser == null) navController.navigate(Screen.SignInScreen.route)
+        else{
+            navController.navigate(Screen.MusicScreen.route)
+        }
     }
 
-
-    Log.d("sdgsdffg",Firebase.auth.currentUser.toString())
 
     Box(
         modifier = Modifier
