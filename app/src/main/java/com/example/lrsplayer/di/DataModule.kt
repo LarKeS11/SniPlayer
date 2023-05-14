@@ -1,10 +1,14 @@
 package com.example.lrsplayer.di
 
 import android.content.Context
+import androidx.room.Room
 import com.example.lrsplayer.data.firebase.DataFirebaseRepository
 import com.example.lrsplayer.data.firebase.FirebaseService
 import com.example.lrsplayer.data.local.DataLocalRepository
 import com.example.lrsplayer.data.local.audio_service.AudioService
+import com.example.lrsplayer.data.local.database_service.AppDatabase
+import com.example.lrsplayer.data.local.database_service.dao.MusicDao
+import com.example.lrsplayer.data.local.database_service.service.DatabaseService
 import com.example.lrsplayer.domain.repository.FirebaseRepository
 import com.example.lrsplayer.domain.repository.LocalRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -19,6 +23,36 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
+
+    @Singleton
+    @Provides
+    fun provideDatabase(context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,"music_database"
+        )
+            .fallbackToDestructiveMigration()
+            .allowMainThreadQueries()
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideMusicDao(
+        database: AppDatabase
+    ):MusicDao{
+        return database.musicDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideDatabaseService(
+        musicDao: MusicDao
+    ):DatabaseService{
+        return DatabaseService(
+            musicDao = musicDao
+        )
+    }
 
     @Singleton
     @Provides
@@ -61,9 +95,13 @@ object DataModule {
     @Singleton
     @Provides
     fun provideLocalRepository(
-        audioService: AudioService
+        audioService: AudioService,
+        databaseService: DatabaseService
     ):LocalRepository{
-        return DataLocalRepository(audioService)
+        return DataLocalRepository(
+            audioService = audioService,
+            databaseService = databaseService
+        )
     }
 
 }

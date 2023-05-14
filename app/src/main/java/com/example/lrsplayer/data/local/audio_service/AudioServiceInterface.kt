@@ -4,5 +4,6 @@ import android.net.Uri
 import java.io.File
 
 interface AudioServiceInterface {
-    fun getAudioFireFromUri(uri: Uri): File
+    fun saveAudioFile(uri: Uri): String
+    fun getAudioFile(name:String):File
 }

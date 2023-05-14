@@ -4,18 +4,67 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
-import android.os.FileUtils
-import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.util.Log
-import com.google.android.gms.common.util.IOUtils
-import java.io.File
-import java.io.FileOutputStream
+import androidx.core.net.toFile
+import java.io.*
+
 
 class AudioService(
     private val context: Context,
 ):AudioServiceInterface {
     @SuppressLint("Range")
-    override fun getAudioFireFromUri(audioUri: Uri): File {
-        return File("sf")
+    override fun saveAudioFile(audioUri: Uri): String {
+        val inputStream = context.getContentResolver().openInputStream(audioUri)!!
+
+        val filename = getFileName(audioUri)
+
+        val outputFile = context.cacheDir.path + File.separator+filename+"_tmp.mp4"
+
+        try {
+            val f = File(outputFile)
+            f.setWritable(true, false)
+            val outputStream: OutputStream = FileOutputStream(f)
+            val buffer = ByteArray(1024)
+            var length = 0
+            while (inputStream.read(buffer).also { length = it } > 0) {
+                outputStream.write(buffer, 0, length)
+            }
+            outputStream.close()
+            inputStream.close()
+            return filename
+        } catch (e: IOException) {
+            return filename
+        }
+
+
     }
+
+    override fun getAudioFile(name: String):File {
+        return File("${context.cacheDir}/${name}_tmp.mp4")
+    }
+
+    @SuppressLint("Range")
+    private fun getFileName(uri: Uri): String {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor: Cursor = context.getContentResolver().query(uri, null, null, null, null)!!
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                }
+            } finally {
+                cursor.close()
+            }
+        }
+        if (result == null) {
+            result = uri.path
+            val cut = result!!.lastIndexOf('/')
+            if (cut != -1) {
+                result = result.substring(cut + 1)
+            }
+        }
+        return result
+    }
+
 }

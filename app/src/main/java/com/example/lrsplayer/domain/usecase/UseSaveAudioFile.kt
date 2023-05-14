@@ -4,12 +4,12 @@ import android.net.Uri
 import com.example.lrsplayer.domain.repository.LocalRepository
 import java.io.File
 
-class UseGetAudioFileFromUri(
+class UseSaveAudioFile(
     private val localRepository: LocalRepository
 ) {
 
-    fun execute(uri:Uri):File{
-        return localRepository.getAudioFireFromUri(uri)
+    fun execute(uri:Uri):String{
+        return localRepository.saveAudioFile(uri)
     }
 
 }

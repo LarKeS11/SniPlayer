@@ -2,12 +2,7 @@ package com.example.lrsplayer.di
 
 import com.example.lrsplayer.domain.repository.FirebaseRepository
 import com.example.lrsplayer.domain.repository.LocalRepository
-import com.example.lrsplayer.domain.usecase.UseFirebaseSignInWithLogin
-import com.example.lrsplayer.domain.usecase.UseFirebaseSignUpWithLogin
-import com.example.lrsplayer.domain.usecase.UseGetAudioFileFromUri
-import com.example.lrsplayer.domain.usecase.UseGetFirebaseAuth
-import com.example.lrsplayer.domain.usecase.UseGetGoogleSignInClient
-import com.example.lrsplayer.domain.usecase.UseMakeGoogleFirebaseAuthRequest
+import com.example.lrsplayer.domain.usecase.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -49,7 +44,28 @@ object DomainModule {
     @Provides
     fun provideUseGetAudioFileFromUri(
         localRepository: LocalRepository
-    ):UseGetAudioFileFromUri{
-        return UseGetAudioFileFromUri(localRepository)
+    ):UseSaveAudioFile{
+        return UseSaveAudioFile(localRepository)
+    }
+
+    @Provides
+    fun provideUseGetAudioFile(
+        localRepository: LocalRepository
+    ):UseGetAudioFile{
+        return UseGetAudioFile(localRepository)
+    }
+
+    @Provides
+    fun provideUseInsertMusicToLocalDatabase(
+        localRepository: LocalRepository
+    ): UseInsertMusicToLocalDatabase{
+        return UseInsertMusicToLocalDatabase(localRepository = localRepository)
+    }
+
+    @Provides
+    fun provideUseGetAllMusicFromLocalDatabase(
+        localRepository: LocalRepository
+    ):UseGetAllMusicFromLocalDatabase{
+        return UseGetAllMusicFromLocalDatabase(localRepository = localRepository)
     }
 }
