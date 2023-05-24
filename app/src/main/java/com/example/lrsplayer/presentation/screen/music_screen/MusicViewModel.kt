@@ -54,7 +54,9 @@ class MusicViewModel @Inject constructor(
             useInsertMusicToLocalDatabase.execute(
                 Music(
                     name = fileName,
-                    path = file.absolutePath
+                    path = file.absolutePath,
+                    author = "",
+                    image_src = ""
                 )
             )
             getMusic()
