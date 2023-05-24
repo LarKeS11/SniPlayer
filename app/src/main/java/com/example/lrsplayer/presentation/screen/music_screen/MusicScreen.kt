@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.lrsplayer.R
 import com.example.lrsplayer.presentation.theme.sf_pro_text
+import com.example.lrsplayer.presentation.views.MusicButton
 import com.example.lrsplayer.until.ThemeColors
 
 @Composable
@@ -61,7 +62,9 @@ fun MusicScreen(
     ) {
         item {
             Box(
-                modifier = Modifier.fillMaxWidth().padding(start = 13.dp, end = 32.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 13.dp, end = 32.dp)
             ){
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -112,7 +115,83 @@ fun MusicScreen(
                 }
             }
         }
+
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 17.dp)
+                    .padding(top = 30.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(25.dp)
+                ) {
+                    Text(
+                        text = "Songs",
+                        fontSize = 13.sp,
+                        color = colors.title,
+                        fontFamily = sf_pro_text,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = "Playlist",
+                        fontSize = 13.sp,
+                        color = colors.title,
+                        fontFamily = sf_pro_text,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = "Albums",
+                        fontSize = 13.sp,
+                        color = colors.title,
+                        fontFamily = sf_pro_text,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    MusicButton(
+                        icon = R.drawable.__icon__shuffle_,
+                        colors = colors,
+                        modifier = Modifier
+                            .width(22.dp)
+                            .height(20.dp)
+                    ){
+
+                    }
+                    MusicButton(
+                        icon = R.drawable.musicfilter,
+                        colors = colors,
+                        modifier = Modifier.size(22.dp)
+                    ){
+
+                    }
+                    MusicButton(
+                        icon = R.drawable.baseline_add_circle_outline_24,
+                        colors = colors,
+                        modifier = Modifier.size(23.dp)
+                    ){
+                        launcher.launch("audio/*")
+                    }
+                }
+
+            }
+        }
+        
+        
+        items(state.data){
+            Text(text = it.name)
+        }
+        
+
     }
 
     
 }
+
+

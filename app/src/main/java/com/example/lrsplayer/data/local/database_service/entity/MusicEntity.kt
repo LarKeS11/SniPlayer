@@ -8,5 +8,7 @@ data class MusicEntity(
     @PrimaryKey(autoGenerate = true)
     var id:Int? = null,
     val name:String,
-    val path:String
+    val path:String,
+    val image_src:String,
+    val author:String
 )

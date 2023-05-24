@@ -7,6 +7,8 @@ fun MusicEntity.toMusic():Music{
     return Music(
         id = id,
         name = name,
-        path = path
+        path = path,
+        image_src = image_src,
+        author = author
     )
 }

@@ -3,6 +3,7 @@ package com.example.lrsplayer.data.local.audio_service
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
@@ -42,6 +43,14 @@ class AudioService(
 
     override fun getAudioFile(name: String):File {
         return File("${context.cacheDir}/${name}_tmp.mp4")
+    }
+
+
+    private fun getSongAuthorAndImage(file:String){
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(file)
+        val author = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+        val image = retriever.embeddedPicture
     }
 
     @SuppressLint("Range")
