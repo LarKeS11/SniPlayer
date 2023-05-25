@@ -68,4 +68,11 @@ object DomainModule {
     ):UseGetAllMusicFromLocalDatabase{
         return UseGetAllMusicFromLocalDatabase(localRepository = localRepository)
     }
+
+    @Provides
+    fun provideUseGetAudioImage(
+        localRepository: LocalRepository
+    ):UseGetMusicImage{
+        return UseGetMusicImage(localRepository)
+    }
 }

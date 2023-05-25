@@ -6,4 +6,5 @@ import java.io.File
 interface AudioServiceInterface {
     fun saveAudioFile(uri: Uri): String
     fun getAudioFile(name:String):File
+    fun getMusicMetadata(filepath:String):MusicMetadataEntity
 }

@@ -1,11 +1,11 @@
 package com.example.lrsplayer.domain.model
 
+import android.graphics.Bitmap
 import java.io.Serializable
 
-data class Music(
+class Music(
     val id:Int? = null,
     val name:String,
     val path:String,
-    val image_src:String,
-    val author:String
-): Serializable
+    val author:String? = ""
+):Serializable

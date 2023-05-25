@@ -9,6 +9,8 @@ import com.example.lrsplayer.data.local.audio_service.AudioService
 import com.example.lrsplayer.data.local.database_service.AppDatabase
 import com.example.lrsplayer.data.local.database_service.dao.MusicDao
 import com.example.lrsplayer.data.local.database_service.service.DatabaseService
+import com.example.lrsplayer.data.local.ids_service.IdsService
+import com.example.lrsplayer.data.local.image_service.ImageService
 import com.example.lrsplayer.domain.repository.FirebaseRepository
 import com.example.lrsplayer.domain.repository.LocalRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -96,12 +98,32 @@ object DataModule {
     @Provides
     fun provideLocalRepository(
         audioService: AudioService,
-        databaseService: DatabaseService
+        databaseService: DatabaseService,
+        imageService: ImageService,
+        idsService: IdsService
     ):LocalRepository{
         return DataLocalRepository(
             audioService = audioService,
-            databaseService = databaseService
+            databaseService = databaseService,
+            imageService = imageService,
+            idsService = idsService
         )
+    }
+
+    @Singleton
+    @Provides
+    fun provideImageService(
+       context: Context
+    ):ImageService{
+        return ImageService(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideIdsService(
+        context: Context
+    ):IdsService{
+        return IdsService(context)
     }
 
 }

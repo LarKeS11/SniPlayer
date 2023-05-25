@@ -1,6 +1,8 @@
 package com.example.lrsplayer.presentation.screen.music_screen
 
+import android.content.Context
 import android.media.MediaMetadataRetriever
+import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
@@ -8,10 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lrsplayer.domain.model.Music
-import com.example.lrsplayer.domain.usecase.UseGetAllMusicFromLocalDatabase
-import com.example.lrsplayer.domain.usecase.UseGetAudioFile
-import com.example.lrsplayer.domain.usecase.UseInsertMusicToLocalDatabase
-import com.example.lrsplayer.domain.usecase.UseSaveAudioFile
+import com.example.lrsplayer.domain.usecase.*
 import com.example.lrsplayer.until.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -25,19 +24,22 @@ class MusicViewModel @Inject constructor(
     private val useGetAudioFile: UseGetAudioFile,
     private val useInsertMusicToLocalDatabase: UseInsertMusicToLocalDatabase,
     private val useGetAllMusicFromLocalDatabase: UseGetAllMusicFromLocalDatabase,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val useGetMusicImage: UseGetMusicImage
 ):ViewModel() {
 
     private val _isLoading = savedStateHandle.getStateFlow("isLoading", false)
     private val _data = savedStateHandle.getStateFlow("data", listOf<Music>())
     private val _error = savedStateHandle.getStateFlow("error","")
+    private val _currentMusic = savedStateHandle.getStateFlow<Music?>("current_music", null)
 
-    val state = combine(_isLoading, _data, _error){
-        isLoading, data, error ->
+    val state = combine(_isLoading, _data, _error, _currentMusic){
+        isLoading, data, error, currentMusic ->
         MusicState(
             isLoading = isLoading,
             data = data,
-            error = error
+            error = error,
+            currentMusic = currentMusic
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MusicState())
 
@@ -46,7 +48,15 @@ class MusicViewModel @Inject constructor(
         getMusic()
     }
 
+    fun setCurrentMusic(music: Music){
+        savedStateHandle["current_music"] = music
+
+    }
+
+    fun getMusicImage(file: String) = useGetMusicImage.execute(file)
+
     fun saveMusic(uri:Uri){
+
         viewModelScope.launch {
             val fileName = useSaveAudioFile.execute(uri)
             val file = useGetAudioFile.execute(fileName)
@@ -54,9 +64,7 @@ class MusicViewModel @Inject constructor(
             useInsertMusicToLocalDatabase.execute(
                 Music(
                     name = fileName,
-                    path = file.absolutePath,
-                    author = "",
-                    image_src = ""
+                    path = file.absolutePath
                 )
             )
             getMusic()

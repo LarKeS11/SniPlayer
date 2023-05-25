@@ -8,5 +8,6 @@ import com.example.lrsplayer.R
 val sf_pro_text = FontFamily(
     Font(R.font.sfprotextbold, FontWeight.Bold),
     Font(R.font.sfprotextsemibold, FontWeight.SemiBold),
-    Font(R.font.sfprotextheavy, FontWeight.ExtraBold)
+    Font(R.font.sfprotextheavy, FontWeight.ExtraBold),
+    Font(R.font.sfpromedium, FontWeight.Medium)
 )

@@ -18,8 +18,13 @@ class UseGetAllMusicFromLocalDatabase(
         emit(Resource.Loading())
         try {
             val data = localRepository.getAllMusicFromDatabase().map {
-                getSongAuthorAndImage(it.path)
-                it.toMusic()
+                val metadata = localRepository.getMusicMetadata(it.path)
+                Music(
+                    id = it.id,
+                    name = it.name,
+                    path = it.path,
+                    author = metadata.author
+                )
             }
             emit(Resource.Success(data))
         }catch (e:Exception){
@@ -28,12 +33,4 @@ class UseGetAllMusicFromLocalDatabase(
 
     }
 
-}
-
-private fun getSongAuthorAndImage(file:String){
-    val retriever = MediaMetadataRetriever()
-    retriever.setDataSource(file)
-    val author = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-    val image = retriever.embeddedPicture
-    Log.d("werfgbvdef","$author  $image")
 }

@@ -3,6 +3,8 @@ package com.example.lrsplayer.data.local.audio_service
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.OpenableColumns
@@ -41,8 +43,23 @@ class AudioService(
 
     }
 
+    private fun getBitmapByBytesArray(byteArray: ByteArray): Bitmap {
+        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+    }
+
     override fun getAudioFile(name: String):File {
         return File("${context.cacheDir}/${name}_tmp.mp4")
+    }
+
+    override fun getMusicMetadata(filepath: String): MusicMetadataEntity {
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(filepath)
+        val author = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+        val image = retriever.embeddedPicture
+        return MusicMetadataEntity(
+            author = author,
+            image = if(image == null) null else getBitmapByBytesArray(image)
+        )
     }
 
 
