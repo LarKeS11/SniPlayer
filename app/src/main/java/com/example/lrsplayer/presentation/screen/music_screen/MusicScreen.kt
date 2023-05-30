@@ -30,13 +30,16 @@ import coil.compose.AsyncImage
 import com.example.lrsplayer.R
 import com.example.lrsplayer.presentation.theme.sf_pro_text
 import com.example.lrsplayer.presentation.views.MusicButton
+import com.example.lrsplayer.presentation.views.PlayingView
 import com.example.lrsplayer.until.ThemeColors
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 
 @Composable
 fun MusicScreen(
     colors:ThemeColors,
     viewModel: MusicViewModel = hiltViewModel(),
+    appContext:Context,
     navController: NavController
 ) {
 
@@ -49,12 +52,11 @@ fun MusicScreen(
 
     val mediaPlayer = MediaPlayer()
 
-    val context = LocalContext.current
 
 
     LaunchedEffect(state.currentMusic) {
         if (state.currentMusic != null) {
-            mediaPlayer.setDataSource(context, state.currentMusic!!.path.toUri())
+            mediaPlayer.setDataSource(appContext, state.currentMusic!!.path.toUri())
             mediaPlayer.prepare()
             mediaPlayer.start()
         }
@@ -202,50 +204,58 @@ fun MusicScreen(
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    mediaPlayer.stop()
-                    mediaPlayer.release()
-                    viewModel.setCurrentMusic(it)
+                    try {
+                        mediaPlayer.stop()
+                        mediaPlayer.release()
+                    }catch (_:Exception){
+
+                    }
+                    if(it == state.currentMusic) viewModel.setCurrentMusic(null)
+                    else viewModel.setCurrentMusic(it)
                 },
                 elevation = ButtonDefaults.elevation(0.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 17.dp)
                 ) {
-
-                    AsyncImage(
-                        model = viewModel.getMusicImage(it.path),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                    )
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text(
-                            text = it.name,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = sf_pro_text,
-                            color = colors.title
+
+                        AsyncImage(
+                            model = viewModel.getMusicImage(it.path),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(RoundedCornerShape(6.dp))
                         )
-                        Text(
-                            text = it.author ?: "no author",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = sf_pro_text,
-                            color = colors.title
-                        )
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text(
+                                text = it.name,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = sf_pro_text,
+                                color = colors.title,
+                                modifier = Modifier.width(150.dp)
+                            )
+                            Text(
+                                text = it.author ?: "no author",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = sf_pro_text,
+                                color = colors.title
+                            )
+                        }
                     }
-
-
+                    if(it == state.currentMusic) PlayingView(colors = colors)
                 }
-                
                 if(state.currentMusic == it){
                     Text(text = "lol")
                 }

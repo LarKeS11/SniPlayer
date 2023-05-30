@@ -22,11 +22,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
+         setContent {
             val navController = rememberNavController()
             Navigate(
                 navController = navController,
-                colors = viewmodel.currentMainThemeColors
+                colors = viewmodel.currentMainThemeColors,
+                appContext = this
             ){theme ->
                 viewmodel.switchMainThemeColors(theme)
             }

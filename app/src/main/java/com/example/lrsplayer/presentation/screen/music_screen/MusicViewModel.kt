@@ -48,7 +48,7 @@ class MusicViewModel @Inject constructor(
         getMusic()
     }
 
-    fun setCurrentMusic(music: Music){
+    fun setCurrentMusic(music: Music?){
         savedStateHandle["current_music"] = music
 
     }

@@ -1,5 +1,6 @@
 package com.example.lrsplayer.presentation.navigation
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -8,6 +9,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.lrsplayer.presentation.screen.music_control_screen.MusicControlScreen
 import com.example.lrsplayer.presentation.screen.music_screen.MusicScreen
 import com.example.lrsplayer.presentation.screen.sign_in_screen.SignInScreen
 import com.example.lrsplayer.presentation.screen.sign_up_screen.SignUpScreen
@@ -18,13 +20,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 @Composable
 fun Navigate(
     navController: NavHostController,
+    appContext:Context,
     colors:MutableStateFlow<ThemeColors>,
     setTheme:(String) -> Unit
 ) {
 
     val appColors by colors.collectAsState()
 
-    NavHost(navController = navController, startDestination = Screen.SplashScreen.route){
+    NavHost(navController = navController, startDestination = Screen.MusicControlScreen.route){
 
         composable(
             route = Screen.SplashScreen.route
@@ -50,7 +53,13 @@ fun Navigate(
         composable(
             route = Screen.MusicScreen.route
         ){
-            MusicScreen(colors = appColors, navController = navController)
+            MusicScreen(colors = appColors, navController = navController, appContext = appContext)
+        }
+
+        composable(
+            route = Screen.MusicControlScreen.route
+        ){
+            MusicControlScreen(id = 12, colors = appColors)
         }
 
     }
