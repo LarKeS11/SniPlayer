@@ -6,6 +6,10 @@ import android.media.MediaPlayer
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -63,207 +67,214 @@ fun MusicScreen(
 
     }
 
-
-
-    
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.main_background)
-            .padding(top = 24.dp)
-    ) {
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 13.dp, end = 32.dp)
-            ){
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = {  },
-                            modifier = Modifier
-                                .width(16.dp)
-                                .height(13.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.menu),
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .width(16.dp)
-                                    .height(13.dp),
-                                tint = colors.title
-                            )
-                        }
-                        Text(
-                            text = "SniPlayer",
-                            fontSize = 20.sp,
-                            fontFamily = sf_pro_text,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = colors.title
-                        )
-                    }
-                    IconButton(
-                        onClick = {  },
-                        modifier = Modifier
-                            .size(30.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_search_24),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(30.dp),
-                            tint = colors.title
-                        )
-                    }
-
-                }
-            }
-        }
-
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 17.dp)
-                    .padding(top = 30.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(25.dp)
-                ) {
-                    Text(
-                        text = "Songs",
-                        fontSize = 13.sp,
-                        color = colors.title,
-                        fontFamily = sf_pro_text,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "Playlist",
-                        fontSize = 13.sp,
-                        color = colors.title,
-                        fontFamily = sf_pro_text,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "Albums",
-                        fontSize = 13.sp,
-                        color = colors.title,
-                        fontFamily = sf_pro_text,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    MusicButton(
-                        icon = R.drawable.__icon__shuffle_,
-                        colors = colors,
-                        modifier = Modifier
-                            .width(22.dp)
-                            .height(20.dp)
-                    ){
-
-                    }
-                    MusicButton(
-                        icon = R.drawable.musicfilter,
-                        colors = colors,
-                        modifier = Modifier.size(22.dp)
-                    ){
-
-                    }
-                    MusicButton(
-                        icon = R.drawable.baseline_add_circle_outline_24,
-                        colors = colors,
-                        modifier = Modifier.size(23.dp)
-                    ){
-                        launcher.launch("audio/*")
-                    }
-                }
-
-            }
-        }
-        
-        item { 
-            Spacer(modifier = Modifier.height(25.dp))
-        }
-        
-        items(state.data){
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    try {
-                        mediaPlayer.stop()
-                        mediaPlayer.release()
-                    }catch (_:Exception){
-
-                    }
-                    if(it == state.currentMusic) viewModel.setCurrentMusic(null)
-                    else viewModel.setCurrentMusic(it)
-                },
-                elevation = ButtonDefaults.elevation(0.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
+    Box(modifier = Modifier.fillMaxSize()){
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colors.main_background)
+                .padding(top = 24.dp)
+        ) {
+            item {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 17.dp)
-                ) {
+                        .padding(start = 13.dp, end = 32.dp)
+                ){
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-
-                        AsyncImage(
-                            model = viewModel.getMusicImage(it.path),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                        )
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
+                            IconButton(
+                                onClick = {  },
+                                modifier = Modifier
+                                    .width(16.dp)
+                                    .height(13.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.menu),
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .width(16.dp)
+                                        .height(13.dp),
+                                    tint = colors.title
+                                )
+                            }
                             Text(
-                                text = it.name,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold,
+                                text = "SniPlayer",
+                                fontSize = 20.sp,
                                 fontFamily = sf_pro_text,
-                                color = colors.title,
-                                modifier = Modifier.width(150.dp)
-                            )
-                            Text(
-                                text = it.author ?: "no author",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = sf_pro_text,
+                                fontWeight = FontWeight.ExtraBold,
                                 color = colors.title
                             )
                         }
+                        IconButton(
+                            onClick = {  },
+                            modifier = Modifier
+                                .size(30.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_search_24),
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(30.dp),
+                                tint = colors.title
+                            )
+                        }
+
                     }
-                    if(it == state.currentMusic) PlayingView(colors = colors)
                 }
-                if(state.currentMusic == it){
-                    Text(text = "lol")
-                }
-                
             }
-            Spacer(modifier = Modifier.height(4.dp))
+
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 17.dp)
+                        .padding(top = 30.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(25.dp)
+                    ) {
+                        Text(
+                            text = "Songs",
+                            fontSize = 13.sp,
+                            color = colors.title,
+                            fontFamily = sf_pro_text,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "Playlist",
+                            fontSize = 13.sp,
+                            color = colors.title,
+                            fontFamily = sf_pro_text,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "Albums",
+                            fontSize = 13.sp,
+                            color = colors.title,
+                            fontFamily = sf_pro_text,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        MusicButton(
+                            icon = R.drawable.__icon__shuffle_,
+                            colors = colors,
+                            modifier = Modifier
+                                .width(22.dp)
+                                .height(20.dp)
+                        ){
+
+                        }
+                        MusicButton(
+                            icon = R.drawable.musicfilter,
+                            colors = colors,
+                            modifier = Modifier.size(22.dp)
+                        ){
+
+                        }
+                        MusicButton(
+                            icon = R.drawable.baseline_add_circle_outline_24,
+                            colors = colors,
+                            modifier = Modifier.size(23.dp)
+                        ){
+                            launcher.launch("audio/*")
+                        }
+                    }
+
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(25.dp))
+            }
+
+            items(state.data){
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        try {
+                            mediaPlayer.stop()
+                            mediaPlayer.release()
+                        }catch (_:Exception){
+
+                        }
+                        if(it == state.currentMusic) viewModel.setCurrentMusic(null)
+                        else viewModel.setCurrentMusic(it)
+                    },
+                    elevation = ButtonDefaults.elevation(0.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 17.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+
+                            AsyncImage(
+                                model = viewModel.getMusicImage(it.path),
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .clip(RoundedCornerShape(6.dp))
+                            )
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Text(
+                                    text = it.name,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = sf_pro_text,
+                                    color = colors.title,
+                                    modifier = Modifier.width(150.dp)
+                                )
+                                Text(
+                                    text = it.author ?: "no author",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    fontFamily = sf_pro_text,
+                                    color = colors.title
+                                )
+                            }
+                        }
+                        if(it == state.currentMusic) PlayingView(colors = colors)
+                    }
+                    if(state.currentMusic == it){
+                        Text(text = "lol")
+                    }
+
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+            }
         }
-        
+
+        AnimatedVisibility(
+            visible = state.currentMusic != null,
+            enter = fadeIn() + slideInVertically()
+        ) {
+            MusicControl(colors){
+                viewModel.setCurrentMusic(null)
+            }
+        }
+
 
     }
 

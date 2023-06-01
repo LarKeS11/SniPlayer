@@ -27,7 +27,7 @@ fun Navigate(
 
     val appColors by colors.collectAsState()
 
-    NavHost(navController = navController, startDestination = Screen.MusicControlScreen.route){
+    NavHost(navController = navController, startDestination = Screen.MusicScreen.route){
 
         composable(
             route = Screen.SplashScreen.route
