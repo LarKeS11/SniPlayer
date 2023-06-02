@@ -1,5 +1,6 @@
 package com.example.lrsplayer.presentation.screen.music_screen
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,36 +17,79 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.lrsplayer.R
+import com.example.lrsplayer.domain.model.Music
 import com.example.lrsplayer.presentation.theme.sf_pro_text
 import com.example.lrsplayer.presentation.views.MusicProgressBar
 import com.example.lrsplayer.presentation.views.SettingIcon
 import com.example.lrsplayer.until.ThemeColors
+import java.io.File
+
 
 @Composable
 fun MusicControl(
+    music:Music,
+    musicImage: Bitmap?,
     colors: ThemeColors,
-    callback:() -> Unit
+    pause:Boolean,
+    musicDuration:String,
+    onClose:() -> Unit,
+    onActive:() -> Unit,
+    onNext:() -> Unit,
+    onLast:() -> Unit
 ) {
+
+    @Composable
+    fun Image(
+        modifier: Modifier = Modifier
+    ){
+        if(musicImage == null) {
+            Image(
+                painter = painterResource(id = R.drawable.no_music_image),
+                contentDescription = "",
+                modifier = modifier,
+                contentScale = ContentScale.Crop
+            )
+        }else{
+            AsyncImage(
+                model = musicImage,
+                contentDescription = "",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(302.dp)
+                    .clip(RoundedCornerShape(26.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
+    }
+
+
     Box(modifier = Modifier
         .fillMaxSize()
         .background(colors.main_background)
     ){
+
+
         Image(
-            painter = painterResource(id = R.drawable.test_back),
-            contentDescription = "",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+            modifier = Modifier
+                .fillMaxSize()
         )
+
+
         Box(
-            modifier = Modifier.fillMaxSize().background(colors.main_background.copy(alpha = 0.95f))
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colors.main_background.copy(alpha = 0.90f))
         )
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(top = 15.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 15.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             item {
@@ -58,7 +102,7 @@ fun MusicControl(
                 ) {
                     IconButton(
                         onClick = {
-                            callback()
+                            onClose()
                         },
                         modifier = Modifier.size(29.dp)
                     ) {
@@ -82,13 +126,10 @@ fun MusicControl(
                         .padding(horizontal = 45.dp)
                 ){
                     Image(
-                        painter = painterResource(id = R.drawable.test_back),
-                        contentDescription = "",
-                        modifier = Modifier
+                        modifier =  Modifier
                             .fillMaxWidth()
                             .height(302.dp)
-                            .clip(RoundedCornerShape(26.dp)),
-                        contentScale = ContentScale.Crop
+                            .clip(RoundedCornerShape(26.dp))
                     )
                 }
             }
@@ -96,19 +137,21 @@ fun MusicControl(
             item {
                 Spacer(modifier = Modifier.height(40.dp))
                 Text(
-                    text = "Nakhla",
+                    text = if(music.name.length > 20)music.name.substring(0,19) + "..." else music.name,
                     fontFamily = sf_pro_text,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 23.sp,
-                    color = colors.title
+                    color = colors.title,
+                    textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = "Hidden & Khalse & Sijal",
+                    text = music.author?: "no author",
                     fontFamily = sf_pro_text,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 11.sp,
-                    color = colors.title
+                    color = colors.title,
+                    textAlign = TextAlign.Center
                 )
             }
             item {
@@ -167,14 +210,14 @@ fun MusicControl(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "1:53",
+                            text = "0:00",
                             fontFamily = sf_pro_text,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 11.sp,
                             color = colors.title
                         )
                         Text(
-                            text = "4:42",
+                            text = musicDuration,
                             fontFamily = sf_pro_text,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 11.sp,
@@ -186,7 +229,9 @@ fun MusicControl(
                         horizontalArrangement = Arrangement.spacedBy(30.dp)
                     ) {
                         IconButton(
-                            onClick = {  },
+                            onClick = {
+                                onLast()
+                            },
                             modifier = Modifier.size(34.dp)
                         ) {
                             Icon(
@@ -197,18 +242,23 @@ fun MusicControl(
                             )
                         }
                         IconButton(
-                            onClick = {  },
+                            onClick = {
+                                onActive()
+                            },
                             modifier = Modifier.size(34.dp)
                         ) {
+
                             Icon(
-                                painter = painterResource(id = R.drawable.pause_button),
+                                painter = painterResource(id =if(pause) R.drawable.play else R.drawable.pause_button),
                                 contentDescription = "",
                                 modifier = Modifier.size(34.dp),
                                 tint = colors.title
                             )
                         }
                         IconButton(
-                            onClick = {  },
+                            onClick = {
+                                onNext()
+                            },
                             modifier = Modifier.size(34.dp)
                         ) {
                             Icon(

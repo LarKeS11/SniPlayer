@@ -7,5 +7,6 @@ class Music(
     val id:Int? = null,
     val name:String,
     val path:String,
-    val author:String? = ""
+    val author:String? = "",
+    var duration:String? = ""
 ):Serializable

@@ -10,6 +10,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,21 +50,26 @@ fun MusicScreen(
 ) {
 
     val state by viewModel.state.collectAsState()
+    val showControlScreen by viewModel.showControlScreen
+    val durationState by viewModel.durationState
 
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { res ->
         viewModel.saveMusic(res!!)
     }
 
-    val mediaPlayer = MediaPlayer()
 
-
+    LaunchedEffect(durationState){
+        Log.d("dsdfdsdd",durationState)
+    }
 
     LaunchedEffect(state.currentMusic) {
         if (state.currentMusic != null) {
-            mediaPlayer.setDataSource(appContext, state.currentMusic!!.path.toUri())
-            mediaPlayer.prepare()
-            mediaPlayer.start()
+            viewModel.playMusic(
+                music = state.currentMusic!!,
+                context = appContext
+            )
+            viewModel.musicListener()
         }
 
     }
@@ -205,13 +212,8 @@ fun MusicScreen(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        try {
-                            mediaPlayer.stop()
-                            mediaPlayer.release()
-                        }catch (_:Exception){
-
-                        }
-                        if(it == state.currentMusic) viewModel.setCurrentMusic(null)
+                        viewModel.switchControlScreenState()
+                        if(it == state.currentMusic) return@Button
                         else viewModel.setCurrentMusic(it)
                     },
                     elevation = ButtonDefaults.elevation(0.dp),
@@ -222,19 +224,31 @@ fun MusicScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 17.dp)
+                            .padding(start = 17.dp)
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-
-                            AsyncImage(
-                                model = viewModel.getMusicImage(it.path),
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .clip(RoundedCornerShape(6.dp))
-                            )
+                            val img = viewModel.getMusicImage(it.path)
+                            if(img == null){
+                                Image(
+                                    painter = painterResource(id = R.drawable.no_music_image),
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .clip(RoundedCornerShape(6.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else{
+                                AsyncImage(
+                                    model = viewModel.getMusicImage(it.path),
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .clip(RoundedCornerShape(6.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
@@ -244,7 +258,7 @@ fun MusicScreen(
                                     fontWeight = FontWeight.Bold,
                                     fontFamily = sf_pro_text,
                                     color = colors.title,
-                                    modifier = Modifier.width(150.dp)
+                                    modifier = Modifier.width(200.dp)
                                 )
                                 Text(
                                     text = it.author ?: "no author",
@@ -255,7 +269,7 @@ fun MusicScreen(
                                 )
                             }
                         }
-                        if(it == state.currentMusic) PlayingView(colors = colors)
+                        if(it == state.currentMusic) PlayingView(pause = state.musicPause, colors = colors)
                     }
                     if(state.currentMusic == it){
                         Text(text = "lol")
@@ -267,12 +281,23 @@ fun MusicScreen(
         }
 
         AnimatedVisibility(
-            visible = state.currentMusic != null,
+            visible = showControlScreen,
             enter = fadeIn() + slideInVertically()
         ) {
-            MusicControl(colors){
-                viewModel.setCurrentMusic(null)
-            }
+            MusicControl(
+                colors = colors,
+                pause = state.musicPause,
+                music = state.currentMusic!!,
+                musicDuration = viewModel.getMusicDuration(),
+                musicImage = viewModel.getMusicImage(state.currentMusic!!.path),
+                onClose = { viewModel.switchControlScreenState() },
+                onActive = {
+                    if(state.musicPause) viewModel.continueMusic()
+                    else viewModel.pauseMusic()
+                },
+                onNext = { },
+                onLast = { }
+            )
         }
 
 

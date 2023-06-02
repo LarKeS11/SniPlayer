@@ -21,13 +21,14 @@ import com.example.lrsplayer.until.ThemeColors
 
 @Composable
 fun PlayingView(
+    pause:Boolean,
     colors:ThemeColors
 ) {
 
 
     val transition = rememberInfiniteTransition()
     val translateAnim1 by transition.animateFloat(
-        initialValue = 5f,
+        initialValue = if(pause) 10f else 5f,
         targetValue = 10f,
         animationSpec = infiniteRepeatable(
             tween(durationMillis = 400, easing = LinearEasing),
@@ -35,7 +36,7 @@ fun PlayingView(
         ),
     )
     val translateAnim2 by transition.animateFloat(
-        initialValue = 5f,
+        initialValue =if(pause) 12f else 5f,
         targetValue = 12f,
         animationSpec = infiniteRepeatable(
             tween(durationMillis = 600, easing = LinearEasing),
@@ -43,13 +44,14 @@ fun PlayingView(
         ),
     )
     val translateAnim3 by transition.animateFloat(
-        initialValue = 5f,
+        initialValue = if(pause) 14f else 5f,
         targetValue = 14f,
         animationSpec = infiniteRepeatable(
             tween(durationMillis = 1000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         ),
     )
+
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(2.dp),
