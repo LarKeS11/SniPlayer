@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,10 +26,16 @@ fun PlayingView(
     colors:ThemeColors
 ) {
 
+    val pauseState = rememberSaveable{
+        mutableStateOf(false)
+    }
+
+    if(pauseState.value != pause) pauseState.value = pause
+
 
     val transition = rememberInfiniteTransition()
     val translateAnim1 by transition.animateFloat(
-        initialValue = if(pause) 10f else 5f,
+        initialValue = if(pauseState.value) 10f else 5f,
         targetValue = 10f,
         animationSpec = infiniteRepeatable(
             tween(durationMillis = 400, easing = LinearEasing),
@@ -36,7 +43,7 @@ fun PlayingView(
         ),
     )
     val translateAnim2 by transition.animateFloat(
-        initialValue =if(pause) 12f else 5f,
+        initialValue =if(pauseState.value) 12f else 5f,
         targetValue = 12f,
         animationSpec = infiniteRepeatable(
             tween(durationMillis = 600, easing = LinearEasing),
@@ -44,7 +51,7 @@ fun PlayingView(
         ),
     )
     val translateAnim3 by transition.animateFloat(
-        initialValue = if(pause) 14f else 5f,
+        initialValue = if(pauseState.value) 14f else 5f,
         targetValue = 14f,
         animationSpec = infiniteRepeatable(
             tween(durationMillis = 1000, easing = LinearEasing),
@@ -58,19 +65,34 @@ fun PlayingView(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Divider(
-            modifier = Modifier.width(2.dp).height(1.dp * translateAnim1).background(colors.title)
+            modifier = Modifier
+                .width(2.dp)
+                .height(1.dp * translateAnim1)
+                .background(colors.title)
         )
         Divider(
-            modifier = Modifier.width(2.dp).height(1.dp * translateAnim2).background(colors.title)
+            modifier = Modifier
+                .width(2.dp)
+                .height(1.dp * translateAnim2)
+                .background(colors.title)
         )
         Divider(
-            modifier = Modifier.width(2.dp).height(1.dp * translateAnim3).background(colors.title)
+            modifier = Modifier
+                .width(2.dp)
+                .height(1.dp * translateAnim3)
+                .background(colors.title)
         )
         Divider(
-            modifier = Modifier.width(2.dp).height(1.dp * translateAnim2).background(colors.title)
+            modifier = Modifier
+                .width(2.dp)
+                .height(1.dp * translateAnim2)
+                .background(colors.title)
         )
         Divider(
-            modifier = Modifier.width(2.dp).height(1.dp * translateAnim1).background(colors.title)
+            modifier = Modifier
+                .width(2.dp)
+                .height(1.dp * translateAnim1)
+                .background(colors.title)
         )
 
     }

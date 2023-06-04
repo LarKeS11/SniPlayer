@@ -1,14 +1,9 @@
 package com.example.lrsplayer.presentation.screen.music_screen
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
-import android.text.format.Time
-import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -17,9 +12,9 @@ import com.example.lrsplayer.domain.model.Music
 import com.example.lrsplayer.domain.usecase.*
 import com.example.lrsplayer.until.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,10 +30,11 @@ class MusicViewModel @Inject constructor(
     private val _isLoading = savedStateHandle.getStateFlow("isLoading", false)
     private val _data = savedStateHandle.getStateFlow("data", listOf<Music>())
     private val _error = savedStateHandle.getStateFlow("error","")
-    private val _currentMusic = savedStateHandle.getStateFlow<Music?>("current_music", null)
+    private val _currentMusic = savedStateHandle.getStateFlow<Int?>("current_music", null)
     private val _musicPause = savedStateHandle.getStateFlow("music_pause",false)
 
-    private val _musicPayer = MediaPlayer()
+    private var _musicPayer = MediaPlayer()
+    val musicPlayer = _musicPayer
 
     val state = combine(_isLoading, _data, _error, _currentMusic, _musicPause){
         isLoading, data, error, currentMusic, musicPause ->
@@ -52,19 +48,27 @@ class MusicViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MusicState())
 
 
-    private val _showControlScreen = mutableStateOf(false)
-    val showControlScreen:State<Boolean> = _showControlScreen
+    private val _showControlScreen = MutableStateFlow(false)
+    val showControlScreen = _showControlScreen
 
-    private val _durationState = mutableStateOf("0:00")
-    val durationState:State<String> = _durationState
+
+
+    private val _musicTransition = MutableStateFlow(false)
+    val musicTransition = _musicTransition
+
 
     init {
         getMusic()
     }
 
-    fun setCurrentMusic(music: Music?){
-        music?.duration = convertMillisecondsToNormalTime(_musicPayer.duration)
-        savedStateHandle["current_music"] = music
+    fun stopMusic(){
+        _musicPayer.stop()
+        _musicPayer.release()
+        _musicPayer = MediaPlayer()
+    }
+
+    fun setCurrentMusic(index:Int?){
+        savedStateHandle["current_music"] = index
 
     }
 
@@ -72,28 +76,36 @@ class MusicViewModel @Inject constructor(
         _musicPayer.setDataSource(context, music.path.toUri())
         _musicPayer.prepare()
         _musicPayer.start()
-        Log.d("fdfgsdfdf", convertMillisecondsToNormalTime(_musicPayer.duration))
-      //  _musicPayer.currentPosition
-
+        savedStateHandle["music_pause"] = false
+        setMusicTransition(false)
     }
+
 
     fun getMusicDuration() = convertMillisecondsToNormalTime(_musicPayer.duration)
 
-    fun musicListener(){
-
+    fun setMusicTransition(bool:Boolean){
+        _musicTransition.value = bool
     }
 
+    fun nextMusic(){
+        val cns = _data.value.size - 1
+        if(_currentMusic.value == cns) setCurrentMusic(0)
+        else setCurrentMusic(_currentMusic.value!! + 1)
+    }
+
+    fun lastMusic(){
+        if(_currentMusic.value == 0) setCurrentMusic(_data.value.size - 1)
+        else setCurrentMusic(_currentMusic.value!! - 1)
+    }
+
+    @SuppressLint("DefaultLocale")
     private fun convertMillisecondsToNormalTime(total:Int):String{
-        val hours = (total / (60 * 60 * 1000))
-        val minutes = (total / (60 * 1000)) % 60
-        val seconds = (total / 1000)  % 60
-        var str = ""
-        if(hours != 0){
-            str += "$hours:"
-        }
-        str += "$minutes:"
-        str += "$seconds"
-        return str
+        return String.format(
+            "%02d:%02d ",
+            TimeUnit.MILLISECONDS.toMinutes(total.toLong()),
+            TimeUnit.MILLISECONDS.toSeconds(total.toLong()) -
+                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(total.toLong()))
+        )
     }
 
     fun pauseMusic(){

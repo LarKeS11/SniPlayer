@@ -1,36 +1,35 @@
 package com.example.lrsplayer.presentation.screen.music_screen
 
 import android.content.Context
-import android.media.AudioManager
-import android.media.MediaPlayer
+import android.os.Handler
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.lrsplayer.R
@@ -38,7 +37,9 @@ import com.example.lrsplayer.presentation.theme.sf_pro_text
 import com.example.lrsplayer.presentation.views.MusicButton
 import com.example.lrsplayer.presentation.views.PlayingView
 import com.example.lrsplayer.until.ThemeColors
-import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import java.lang.String
 
 
 @Composable
@@ -49,30 +50,27 @@ fun MusicScreen(
     navController: NavController
 ) {
 
+
+
+    val player = viewModel.musicPlayer
     val state by viewModel.state.collectAsState()
-    val showControlScreen by viewModel.showControlScreen
-    val durationState by viewModel.durationState
+    val showControlScreen by viewModel.showControlScreen.collectAsState()
+    val musicTransition by viewModel.musicTransition.collectAsState()
 
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { res ->
         viewModel.saveMusic(res!!)
     }
 
-
-    LaunchedEffect(durationState){
-        Log.d("dsdfdsdd",durationState)
-    }
-
     LaunchedEffect(state.currentMusic) {
         if (state.currentMusic != null) {
             viewModel.playMusic(
-                music = state.currentMusic!!,
+                music = state.data[state.currentMusic!!],
                 context = appContext
             )
-            viewModel.musicListener()
         }
-
     }
+
 
     Box(modifier = Modifier.fillMaxSize()){
         LazyColumn(
@@ -208,13 +206,14 @@ fun MusicScreen(
                 Spacer(modifier = Modifier.height(25.dp))
             }
 
-            items(state.data){
+            itemsIndexed(state.data){index, it ->
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         viewModel.switchControlScreenState()
-                        if(it == state.currentMusic) return@Button
-                        else viewModel.setCurrentMusic(it)
+                        if(state.currentMusic == index)return@Button
+                        if(state.currentMusic != null) viewModel.stopMusic()
+                        viewModel.setCurrentMusic(index)
                     },
                     elevation = ButtonDefaults.elevation(0.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
@@ -232,7 +231,7 @@ fun MusicScreen(
                             val img = viewModel.getMusicImage(it.path)
                             if(img == null){
                                 Image(
-                                    painter = painterResource(id = R.drawable.no_music_image),
+                                     painterResource(id = R.drawable.no_music_image),
                                     contentDescription = "",
                                     modifier = Modifier
                                         .size(50.dp)
@@ -240,8 +239,8 @@ fun MusicScreen(
                                     contentScale = ContentScale.Crop
                                 )
                             } else{
-                                AsyncImage(
-                                    model = viewModel.getMusicImage(it.path),
+                                Image(
+                                    viewModel.getMusicImage(it.path)!!.asImageBitmap(),
                                     contentDescription = "",
                                     modifier = Modifier
                                         .size(50.dp)
@@ -269,10 +268,7 @@ fun MusicScreen(
                                 )
                             }
                         }
-                        if(it == state.currentMusic) PlayingView(pause = state.musicPause, colors = colors)
-                    }
-                    if(state.currentMusic == it){
-                        Text(text = "lol")
+                        if(state.currentMusic!= null && index == state.currentMusic!!) PlayingView(pause = state.musicPause, colors = colors)
                     }
 
                 }
@@ -280,27 +276,40 @@ fun MusicScreen(
             }
         }
 
+        Log.d("dfgfgdfg","there")
+
         AnimatedVisibility(
             visible = showControlScreen,
             enter = fadeIn() + slideInVertically()
         ) {
             MusicControl(
+                mediaPlayer = player,
                 colors = colors,
                 pause = state.musicPause,
-                music = state.currentMusic!!,
+                music = state.data[state.currentMusic!!],
                 musicDuration = viewModel.getMusicDuration(),
-                musicImage = viewModel.getMusicImage(state.currentMusic!!.path),
+                musicImage = viewModel.getMusicImage(state.data[state.currentMusic!!].path),
                 onClose = { viewModel.switchControlScreenState() },
                 onActive = {
                     if(state.musicPause) viewModel.continueMusic()
                     else viewModel.pauseMusic()
                 },
-                onNext = { },
-                onLast = { }
+                onNext = {
+                    if(!musicTransition) {
+                        viewModel.setMusicTransition(true)
+                        viewModel.stopMusic()
+                        viewModel.nextMusic()
+                    }
+                         },
+                onLast = {
+                    if(!musicTransition) {
+                        viewModel.setMusicTransition(true)
+                        viewModel.stopMusic()
+                        viewModel.lastMusic()
+                    }
+                }
             )
         }
-
-
     }
 
     

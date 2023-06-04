@@ -13,6 +13,8 @@ class UseGetAllMusicFromLocalDatabase(
     private val localRepository: LocalRepository
 ) {
 
+
+
     operator fun invoke():Flow<Resource<List<Music>>> = flow {
 
         emit(Resource.Loading())

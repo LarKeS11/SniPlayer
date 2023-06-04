@@ -1,6 +1,8 @@
 package com.example.lrsplayer.presentation.screen.music_screen
 
 import android.graphics.Bitmap
+import android.media.MediaPlayer
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,24 +12,31 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.example.lrsplayer.R
 import com.example.lrsplayer.domain.model.Music
 import com.example.lrsplayer.presentation.theme.sf_pro_text
 import com.example.lrsplayer.presentation.views.MusicProgressBar
 import com.example.lrsplayer.presentation.views.SettingIcon
+import com.example.lrsplayer.until.SmallService
 import com.example.lrsplayer.until.ThemeColors
-import java.io.File
+import kotlinx.coroutines.delay
+
+
+//Log.d("dfgdfgdfg",currentDuration)
 
 
 @Composable
@@ -36,15 +45,29 @@ fun MusicControl(
     musicImage: Bitmap?,
     colors: ThemeColors,
     pause:Boolean,
+    mediaPlayer: MediaPlayer,
     musicDuration:String,
     onClose:() -> Unit,
     onActive:() -> Unit,
     onNext:() -> Unit,
     onLast:() -> Unit
 ) {
+    val duration = rememberSaveable {
+        mutableStateOf("0:00")
+    }
+
+    LaunchedEffect(pause){
+        if(!pause){
+            while(true){
+                val time = mediaPlayer.currentPosition
+                duration.value = SmallService.convertMillisecondsToTimeString(time)
+                delay(1000)
+            }
+        }
+    }
 
     @Composable
-    fun Image(
+    fun MusicImage(
         modifier: Modifier = Modifier
     ){
         if(musicImage == null) {
@@ -55,13 +78,10 @@ fun MusicControl(
                 contentScale = ContentScale.Crop
             )
         }else{
-            AsyncImage(
-                model = musicImage,
+            Image(
+                musicImage.asImageBitmap(),
                 contentDescription = "",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(302.dp)
-                    .clip(RoundedCornerShape(26.dp)),
+                modifier = modifier,
                 contentScale = ContentScale.Crop
             )
         }
@@ -74,16 +94,17 @@ fun MusicControl(
     ){
 
 
-        Image(
+        MusicImage(
             modifier = Modifier
                 .fillMaxSize()
+
         )
 
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colors.main_background.copy(alpha = 0.90f))
+                .background(colors.main_background.copy(alpha = 0.94f))
         )
 
         LazyColumn(
@@ -125,8 +146,8 @@ fun MusicControl(
                         .fillMaxWidth()
                         .padding(horizontal = 45.dp)
                 ){
-                    Image(
-                        modifier =  Modifier
+                    MusicImage(
+                        modifier = Modifier
                             .fillMaxWidth()
                             .height(302.dp)
                             .clip(RoundedCornerShape(26.dp))
@@ -210,7 +231,7 @@ fun MusicControl(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "0:00",
+                            text = duration.value,
                             fontFamily = sf_pro_text,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 11.sp,
