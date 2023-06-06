@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.lrsplayer.R
@@ -52,7 +53,6 @@ fun MusicScreen(
 
 
 
-    val player = viewModel.musicPlayer
     val state by viewModel.state.collectAsState()
     val showControlScreen by viewModel.showControlScreen.collectAsState()
     val musicTransition by viewModel.musicTransition.collectAsState()
@@ -283,12 +283,13 @@ fun MusicScreen(
             enter = fadeIn() + slideInVertically()
         ) {
             MusicControl(
-                mediaPlayer = player,
                 colors = colors,
                 pause = state.musicPause,
                 music = state.data[state.currentMusic!!],
-                musicDuration = viewModel.getMusicDuration(),
+                musicDuration = { viewModel.getMusicDuration() },
+                getMusicPercProgress = {viewModel.getMusicPercProgress()},
                 musicImage = viewModel.getMusicImage(state.data[state.currentMusic!!].path),
+                getCurrentPos = { viewModel.getCurrentMusicPosition() },
                 onClose = { viewModel.switchControlScreenState() },
                 onActive = {
                     if(state.musicPause) viewModel.continueMusic()

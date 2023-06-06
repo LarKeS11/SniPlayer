@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
+import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -34,7 +35,6 @@ class MusicViewModel @Inject constructor(
     private val _musicPause = savedStateHandle.getStateFlow("music_pause",false)
 
     private var _musicPayer = MediaPlayer()
-    val musicPlayer = _musicPayer
 
     val state = combine(_isLoading, _data, _error, _currentMusic, _musicPause){
         isLoading, data, error, currentMusic, musicPause ->
@@ -80,8 +80,22 @@ class MusicViewModel @Inject constructor(
         setMusicTransition(false)
     }
 
+    fun getCurrentMusicPosition(): Int {
+        return _musicPayer.currentPosition + 500
+    }
 
-    fun getMusicDuration() = convertMillisecondsToNormalTime(_musicPayer.duration)
+
+    fun getMusicDuration():String {
+       if(_musicPayer.duration == -1) return ""
+       return convertMillisecondsToNormalTime(_musicPayer.duration)
+    }
+
+    fun getMusicPercProgress():Float{
+        val dur = _musicPayer.duration
+        val pos = getCurrentMusicPosition()
+        Log.d("sfdfgdfg","$dur    $pos")
+        return pos.toFloat() * 100 / dur / 100
+    }
 
     fun setMusicTransition(bool:Boolean){
         _musicTransition.value = bool

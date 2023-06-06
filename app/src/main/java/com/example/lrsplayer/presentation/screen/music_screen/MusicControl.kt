@@ -1,7 +1,6 @@
 package com.example.lrsplayer.presentation.screen.music_screen
 
 import android.graphics.Bitmap
-import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +32,7 @@ import com.example.lrsplayer.presentation.views.SettingIcon
 import com.example.lrsplayer.until.SmallService
 import com.example.lrsplayer.until.ThemeColors
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 //Log.d("dfgdfgdfg",currentDuration)
@@ -45,23 +44,45 @@ fun MusicControl(
     musicImage: Bitmap?,
     colors: ThemeColors,
     pause:Boolean,
-    mediaPlayer: MediaPlayer,
-    musicDuration:String,
+    musicDuration:() -> String,
+    getCurrentPos:() -> Int,
+    getMusicPercProgress:() -> Float,
     onClose:() -> Unit,
     onActive:() -> Unit,
     onNext:() -> Unit,
     onLast:() -> Unit
 ) {
-    val duration = rememberSaveable {
-        mutableStateOf("0:00")
+
+
+
+    val currentPosition = remember {
+        mutableStateOf("00:00")
+    }
+    val duration = remember {
+        mutableStateOf("")
+    }
+
+    val percProgress = remember {
+        mutableStateOf(0f)
+    }
+
+
+    LaunchedEffect(Unit){
+        currentPosition.value = SmallService.convertMillisecondsToTimeString(getCurrentPos() - 1000)
     }
 
     LaunchedEffect(pause){
+
         if(!pause){
             while(true){
-                val time = mediaPlayer.currentPosition
-                duration.value = SmallService.convertMillisecondsToTimeString(time)
-                delay(1000)
+                percProgress.value = getMusicPercProgress()
+                duration.value = musicDuration()
+                currentPosition.value = SmallService.convertMillisecondsToTimeString(getCurrentPos())
+                if(musicDuration() == SmallService.convertMillisecondsToTimeString(getCurrentPos())){
+                    duration.value = ""
+                    onNext()
+                }
+                delay(200)
             }
         }
     }
@@ -221,8 +242,9 @@ fun MusicControl(
                         }
                     }
                     Spacer(modifier = Modifier.height(24.dp))
+                    Log.d("sdfdsfsdf",percProgress.value.toString())
                     MusicProgressBar(
-                        progress = 0.5f,
+                        progress = percProgress.value,
                         colors = colors
                     )
                     Spacer(modifier = Modifier.height(15.dp))
@@ -231,14 +253,14 @@ fun MusicControl(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = duration.value,
+                            text = currentPosition.value,
                             fontFamily = sf_pro_text,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 11.sp,
                             color = colors.title
                         )
                         Text(
-                            text = musicDuration,
+                            text = duration.value,
                             fontFamily = sf_pro_text,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 11.sp,
@@ -251,6 +273,7 @@ fun MusicControl(
                     ) {
                         IconButton(
                             onClick = {
+                                duration.value = ""
                                 onLast()
                             },
                             modifier = Modifier.size(34.dp)
@@ -278,6 +301,7 @@ fun MusicControl(
                         }
                         IconButton(
                             onClick = {
+                                duration.value = ""
                                 onNext()
                             },
                             modifier = Modifier.size(34.dp)
