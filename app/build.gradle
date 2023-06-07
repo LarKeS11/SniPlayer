@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace 'com.example.lrsplayer'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.lrsplayer"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -92,5 +92,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage-ktx:20.1.0'
     implementation 'com.google.android.gms:play-services-auth:20.4.1'
     implementation 'com.google.firebase:firebase-database-ktx:20.1.0'
+
+
+    implementation 'com.github.SmartToolFactory:Compose-Colorful-Sliders:1.1.0'
+
 
 }

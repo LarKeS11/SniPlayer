@@ -48,7 +48,7 @@ class MusicViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MusicState())
 
 
-    private val _showControlScreen = MutableStateFlow(false)
+    private val _showControlScreen = MutableStateFlow<Boolean?>(null)
     val showControlScreen = _showControlScreen
 
 
@@ -101,6 +101,11 @@ class MusicViewModel @Inject constructor(
         _musicTransition.value = bool
     }
 
+    fun setMusicPosition(progress:Float){
+        val dur = _musicPayer.duration
+        _musicPayer.seekTo((dur*(progress)).toInt())
+    }
+
     fun nextMusic(){
         val cns = _data.value.size - 1
         if(_currentMusic.value == cns) setCurrentMusic(0)
@@ -150,7 +155,10 @@ class MusicViewModel @Inject constructor(
     }
 
     fun switchControlScreenState(){
-        _showControlScreen.value = !showControlScreen.value
+        if(showControlScreen.value == null){
+            _showControlScreen.value = true
+        }
+        _showControlScreen.value = !showControlScreen.value!!
     }
     private fun getMusic(){
 

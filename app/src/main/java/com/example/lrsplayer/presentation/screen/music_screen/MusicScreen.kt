@@ -40,7 +40,6 @@ import com.example.lrsplayer.presentation.views.PlayingView
 import com.example.lrsplayer.until.ThemeColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import java.lang.String
 
 
 @Composable
@@ -278,32 +277,33 @@ fun MusicScreen(
 
         Log.d("dfgfgdfg","there")
 
-        AnimatedVisibility(
-            visible = showControlScreen,
-            enter = fadeIn() + slideInVertically()
-        ) {
+
+        if(showControlScreen != null) {
             MusicControl(
                 colors = colors,
                 pause = state.musicPause,
                 music = state.data[state.currentMusic!!],
+                showControlScreen = showControlScreen!!,
+                switchControlScreenVisible = {viewModel.switchControlScreenState()},
+                setMusicPosition = { viewModel.setMusicPosition(it) },
                 musicDuration = { viewModel.getMusicDuration() },
-                getMusicPercProgress = {viewModel.getMusicPercProgress()},
+                getMusicPercProgress = { viewModel.getMusicPercProgress() },
                 musicImage = viewModel.getMusicImage(state.data[state.currentMusic!!].path),
                 getCurrentPos = { viewModel.getCurrentMusicPosition() },
                 onClose = { viewModel.switchControlScreenState() },
                 onActive = {
-                    if(state.musicPause) viewModel.continueMusic()
+                    if (state.musicPause) viewModel.continueMusic()
                     else viewModel.pauseMusic()
                 },
                 onNext = {
-                    if(!musicTransition) {
+                    if (!musicTransition) {
                         viewModel.setMusicTransition(true)
                         viewModel.stopMusic()
                         viewModel.nextMusic()
                     }
-                         },
+                },
                 onLast = {
-                    if(!musicTransition) {
+                    if (!musicTransition) {
                         viewModel.setMusicTransition(true)
                         viewModel.stopMusic()
                         viewModel.lastMusic()
@@ -311,6 +311,7 @@ fun MusicScreen(
                 }
             )
         }
+
     }
 
     

@@ -42,8 +42,11 @@ import kotlinx.coroutines.launch
 fun MusicControl(
     music:Music,
     musicImage: Bitmap?,
+    showControlScreen:Boolean,
     colors: ThemeColors,
     pause:Boolean,
+    switchControlScreenVisible:()->Unit,
+    setMusicPosition:(Float) -> Unit,
     musicDuration:() -> String,
     getCurrentPos:() -> Int,
     getMusicPercProgress:() -> Float,
@@ -108,218 +111,243 @@ fun MusicControl(
         }
     }
 
-
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(colors.main_background)
-    ){
-
-
-        MusicImage(
-            modifier = Modifier
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if(!showControlScreen){
+            Box(modifier = Modifier
                 .fillMaxSize()
+                .background(colors.main_background)
+            ){
 
-        )
+                MusicImage(modifier = Modifier.fillMaxSize())
 
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colors.main_background.copy(alpha = 0.94f))
-        )
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 15.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 15.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(
-                        onClick = {
-                            onClose()
-                        },
-                        modifier = Modifier.size(29.dp)
-                    ) {
-                        Icon(
-                            painterResource(id = R.drawable.baseline_keyboard_arrow_down_24),
-                            contentDescription = "",
-                            modifier = Modifier.size(29.dp)
-                        )
-                    }
-                    SettingIcon(colors = colors) {
-
-                    }
-                }
-            }
-
-            item { 
-                Spacer(modifier = Modifier.height(45.dp))
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 45.dp)
-                ){
-                    MusicImage(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(302.dp)
-                            .clip(RoundedCornerShape(26.dp))
-                    )
-                }
-            }
+                        .fillMaxSize()
+                        .background(colors.main_background.copy(alpha = 0.94f))
+                )
 
-            item {
-                Spacer(modifier = Modifier.height(40.dp))
-                Text(
-                    text = if(music.name.length > 20)music.name.substring(0,19) + "..." else music.name,
-                    fontFamily = sf_pro_text,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 23.sp,
-                    color = colors.title,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = music.author?: "no author",
-                    fontFamily = sf_pro_text,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 11.sp,
-                    color = colors.title,
-                    textAlign = TextAlign.Center
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.height(30.dp))
-                Column(
+                LazyColumn(
                     modifier = Modifier
-                        .padding(horizontal = 42.dp)
-                        .align(Alignment.BottomCenter),
+                        .fillMaxSize()
+                        .padding(top = 15.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(52.dp)
-                    ) {
-                        IconButton(
-                            onClick = {  },
-                            modifier = Modifier.size(20.dp)
+                ){
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 15.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.__icon__shuffle_),
-                                contentDescription = "",
-                                modifier = Modifier.size(20.dp),
-                                tint = colors.title
-                            )
+                            IconButton(
+                                onClick = {
+                                    onClose()
+                                },
+                                modifier = Modifier.size(29.dp)
+                            ) {
+                                Icon(
+                                    painterResource(id = R.drawable.baseline_keyboard_arrow_down_24),
+                                    contentDescription = "",
+                                    modifier = Modifier.size(29.dp)
+                                )
+                            }
+                            SettingIcon(colors = colors) {
+
+                            }
                         }
-                        IconButton(
-                            onClick = {  },
-                            modifier = Modifier.size(20.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_repeat_24),
-                                contentDescription = "",
-                                modifier = Modifier.size(20.dp),
-                                tint = colors.title
-                            )
-                        }
-                        IconButton(
-                            onClick = {  },
-                            modifier = Modifier.size(20.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.unfilledheart),
-                                contentDescription = "",
-                                modifier = Modifier.size(20.dp),
-                                tint = colors.title
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(45.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 45.dp)
+                        ){
+                            MusicImage(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(302.dp)
+                                    .clip(RoundedCornerShape(26.dp))
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Log.d("sdfdsfsdf",percProgress.value.toString())
-                    MusicProgressBar(
-                        progress = percProgress.value,
-                        colors = colors
-                    )
-                    Spacer(modifier = Modifier.height(15.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
+
+                    item {
+                        Spacer(modifier = Modifier.height(40.dp))
                         Text(
-                            text = currentPosition.value,
+                            text = if(music.name.length > 20)music.name.substring(0,19) + "..." else music.name,
+                            fontFamily = sf_pro_text,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 23.sp,
+                            color = colors.title,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = music.author?: "no author",
                             fontFamily = sf_pro_text,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 11.sp,
-                            color = colors.title
-                        )
-                        Text(
-                            text = duration.value,
-                            fontFamily = sf_pro_text,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 11.sp,
-                            color = colors.title
+                            color = colors.title,
+                            textAlign = TextAlign.Center
                         )
                     }
+                    item {
+                        Spacer(modifier = Modifier.height(30.dp))
+                        Column(
+                            modifier = Modifier
+                                .padding(horizontal = 42.dp)
+                                .align(Alignment.BottomCenter),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(52.dp)
+                            ) {
+                                IconButton(
+                                    onClick = {  },
+                                    modifier = Modifier.size(20.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.__icon__shuffle_),
+                                        contentDescription = "",
+                                        modifier = Modifier.size(20.dp),
+                                        tint = colors.title
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {  },
+                                    modifier = Modifier.size(20.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_baseline_repeat_24),
+                                        contentDescription = "",
+                                        modifier = Modifier.size(20.dp),
+                                        tint = colors.title
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {  },
+                                    modifier = Modifier.size(20.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.unfilledheart),
+                                        contentDescription = "",
+                                        modifier = Modifier.size(20.dp),
+                                        tint = colors.title
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(24.dp))
+                            MusicProgressBar(
+                                progress = percProgress.value,
+                                colors = colors,
+                                modifier = Modifier.fillMaxWidth()
+                            ){progress ->
+                                setMusicPosition(progress)
+                            }
+                            Spacer(modifier = Modifier.height(15.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = currentPosition.value,
+                                    fontFamily = sf_pro_text,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 11.sp,
+                                    color = colors.title
+                                )
+                                Text(
+                                    text = duration.value,
+                                    fontFamily = sf_pro_text,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 11.sp,
+                                    color = colors.title
+                                )
+                            }
 
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(30.dp)
-                    ) {
-                        IconButton(
-                            onClick = {
-                                duration.value = ""
-                                onLast()
-                            },
-                            modifier = Modifier.size(34.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.last_button),
-                                contentDescription = "",
-                                modifier = Modifier.size(34.dp),
-                                tint = colors.title
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                onActive()
-                            },
-                            modifier = Modifier.size(34.dp)
-                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(30.dp)
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        duration.value = ""
+                                        onLast()
+                                    },
+                                    modifier = Modifier.size(34.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.last_button),
+                                        contentDescription = "",
+                                        modifier = Modifier.size(34.dp),
+                                        tint = colors.title
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        onActive()
+                                    },
+                                    modifier = Modifier.size(34.dp)
+                                ) {
 
-                            Icon(
-                                painter = painterResource(id =if(pause) R.drawable.play else R.drawable.pause_button),
-                                contentDescription = "",
-                                modifier = Modifier.size(34.dp),
-                                tint = colors.title
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                duration.value = ""
-                                onNext()
-                            },
-                            modifier = Modifier.size(34.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.next_button),
-                                contentDescription = "",
-                                modifier = Modifier.size(34.dp),
-                                tint = colors.title
-                            )
+                                    Icon(
+                                        painter = painterResource(id =if(pause) R.drawable.play else R.drawable.pause_button),
+                                        contentDescription = "",
+                                        modifier = Modifier.size(34.dp),
+                                        tint = colors.title
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        duration.value = ""
+                                        onNext()
+                                    },
+                                    modifier = Modifier.size(34.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.next_button),
+                                        contentDescription = "",
+                                        modifier = Modifier.size(34.dp),
+                                        tint = colors.title
+                                    )
+                                }
+                            }
                         }
                     }
+
                 }
+            }
+        }else{
+            Box(
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                SmallMusicPanel(
+                    music = music,
+                    musicImage = {
+                        MusicImage(it)
+                    },
+                    pause = pause,
+                    progress = percProgress.value,
+                    colors = colors,
+                    onProgressChange = { progress ->
+                        setMusicPosition(progress)
+                    },
+                    onNext = { onNext() },
+                    onLast = { onLast() },
+                    onPause = { onActive() },
+                    onClick = {
+                        switchControlScreenVisible()
+                    }
+                )
             }
 
         }
-    }
 
+    }
 
 
 }
