@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -45,6 +46,9 @@ fun MusicControl(
     showControlScreen:Boolean,
     colors: ThemeColors,
     pause:Boolean,
+    musicLoop:Boolean,
+    shuffleMusic:()->Unit,
+    switchMusicLoop:() -> Unit,
     switchControlScreenVisible:()->Unit,
     setMusicPosition:(Float) -> Unit,
     musicDuration:() -> String,
@@ -74,14 +78,15 @@ fun MusicControl(
         currentPosition.value = SmallService.convertMillisecondsToTimeString(getCurrentPos() - 1000)
     }
 
-    LaunchedEffect(pause){
+    LaunchedEffect(pause,musicLoop){
 
         if(!pause){
             while(true){
                 percProgress.value = getMusicPercProgress()
                 duration.value = musicDuration()
                 currentPosition.value = SmallService.convertMillisecondsToTimeString(getCurrentPos())
-                if(musicDuration() == SmallService.convertMillisecondsToTimeString(getCurrentPos())){
+                if(musicDuration() == SmallService.convertMillisecondsToTimeString(getCurrentPos()) && !musicLoop){
+                    Log.d("fgsdfsdfsdf",musicLoop.toString())
                     duration.value = ""
                     onNext()
                 }
@@ -208,7 +213,9 @@ fun MusicControl(
                                 horizontalArrangement = Arrangement.spacedBy(52.dp)
                             ) {
                                 IconButton(
-                                    onClick = {  },
+                                    onClick = {
+                                        shuffleMusic()
+                                    },
                                     modifier = Modifier.size(20.dp)
                                 ) {
                                     Icon(
@@ -219,8 +226,10 @@ fun MusicControl(
                                     )
                                 }
                                 IconButton(
-                                    onClick = {  },
-                                    modifier = Modifier.size(20.dp)
+                                    onClick = {
+                                        switchMusicLoop()
+                                    },
+                                    modifier = Modifier.size(20.dp).background(if(musicLoop) Color.Gray else Color.Transparent)
                                 ) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_baseline_repeat_24),

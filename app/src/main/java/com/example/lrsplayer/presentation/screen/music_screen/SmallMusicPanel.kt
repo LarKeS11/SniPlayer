@@ -114,7 +114,6 @@ fun SmallMusicPanel(
                     ){
                         onNext()
                     }
-
                 }
                 MusicProgressBar(
                     progress = progress,

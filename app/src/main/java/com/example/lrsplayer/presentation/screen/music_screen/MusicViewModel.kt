@@ -33,17 +33,19 @@ class MusicViewModel @Inject constructor(
     private val _error = savedStateHandle.getStateFlow("error","")
     private val _currentMusic = savedStateHandle.getStateFlow<Int?>("current_music", null)
     private val _musicPause = savedStateHandle.getStateFlow("music_pause",false)
+    private val _musicLooping = savedStateHandle.getStateFlow("music_loop",false)
 
     private var _musicPayer = MediaPlayer()
 
-    val state = combine(_isLoading, _data, _error, _currentMusic, _musicPause){
-        isLoading, data, error, currentMusic, musicPause ->
+    val state = combine(_isLoading, _data, _error, _currentMusic, _musicPause, _musicLooping){
+        data ->
         MusicState(
-            isLoading = isLoading,
-            data = data,
-            error = error,
-            currentMusic = currentMusic,
-            musicPause = musicPause
+            isLoading = data[0] as Boolean,
+            data = data[1] as List<Music>,
+            error = data[2] as String,
+            currentMusic = data[3] as Int?,
+            musicPause = data[4] as Boolean,
+            isLooping = data[5] as Boolean
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MusicState())
 
@@ -68,6 +70,7 @@ class MusicViewModel @Inject constructor(
     }
 
     fun setCurrentMusic(index:Int?){
+        Log.d("sdfdsfsdf",index.toString())
         savedStateHandle["current_music"] = index
 
     }
@@ -78,6 +81,13 @@ class MusicViewModel @Inject constructor(
         _musicPayer.start()
         savedStateHandle["music_pause"] = false
         setMusicTransition(false)
+    }
+
+    fun shuffleMusic(){
+        stopMusic()
+        savedStateHandle["data"] = _data.value.shuffled()
+        if(_currentMusic.value == null) setCurrentMusic(0)
+        else nextMusic()
     }
 
     fun getCurrentMusicPosition(): Int {
@@ -152,6 +162,13 @@ class MusicViewModel @Inject constructor(
             )
             getMusic()
         }
+    }
+    fun switchLooping(){
+        _musicPayer.isLooping = !_musicLooping.value
+        savedStateHandle["music_loop"] = !_musicLooping.value
+    }
+    fun setMusicLooping(){
+        _musicPayer.isLooping = _musicLooping.value
     }
 
     fun switchControlScreenState(){

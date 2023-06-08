@@ -67,8 +67,11 @@ fun MusicScreen(
                 music = state.data[state.currentMusic!!],
                 context = appContext
             )
+            viewModel.setMusicLooping()
         }
     }
+
+    Log.d("sdfgdsfgsdf",state.isLooping.toString())
 
 
     Box(modifier = Modifier.fillMaxSize()){
@@ -180,7 +183,11 @@ fun MusicScreen(
                                 .width(22.dp)
                                 .height(20.dp)
                         ){
-
+                            if (!musicTransition) {
+                                viewModel.setMusicTransition(true)
+                                viewModel.shuffleMusic()
+                                viewModel.switchControlScreenState()
+                            }
                         }
                         MusicButton(
                             icon = R.drawable.musicfilter,
@@ -283,7 +290,15 @@ fun MusicScreen(
                 colors = colors,
                 pause = state.musicPause,
                 music = state.data[state.currentMusic!!],
+                musicLoop = state.isLooping,
                 showControlScreen = showControlScreen!!,
+                switchMusicLoop = {viewModel.switchLooping()},
+                shuffleMusic = {
+                    if (!musicTransition) {
+                        viewModel.setMusicTransition(true)
+                        viewModel.shuffleMusic()
+                    }
+                },
                 switchControlScreenVisible = {viewModel.switchControlScreenState()},
                 setMusicPosition = { viewModel.setMusicPosition(it) },
                 musicDuration = { viewModel.getMusicDuration() },

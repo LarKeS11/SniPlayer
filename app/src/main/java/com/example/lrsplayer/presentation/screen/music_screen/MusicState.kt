@@ -7,5 +7,6 @@ data class MusicState(
     val data:List<Music> = listOf(),
     val error:String = "",
     val currentMusic:Int? = null,
-    val musicPause:Boolean = false
+    val musicPause:Boolean = false,
+    val isLooping:Boolean = false
 )
