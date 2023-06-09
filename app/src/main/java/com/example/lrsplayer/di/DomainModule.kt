@@ -75,4 +75,11 @@ object DomainModule {
     ):UseGetMusicImage{
         return UseGetMusicImage(localRepository)
     }
+
+    @Provides
+    fun provideUseDeleteMusic(
+        localRepository: LocalRepository
+    ):UseDeleteMusic{
+        return UseDeleteMusic(localRepository)
+    }
 }

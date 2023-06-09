@@ -26,10 +26,11 @@ class MusicViewModel @Inject constructor(
     private val useGetAllMusicFromLocalDatabase: UseGetAllMusicFromLocalDatabase,
     private val savedStateHandle: SavedStateHandle,
     private val useGetMusicImage: UseGetMusicImage,
+    private val useDeleteMusic: UseDeleteMusic
 ):ViewModel() {
 
     private val _isLoading = savedStateHandle.getStateFlow("isLoading", false)
-    private val _data = savedStateHandle.getStateFlow("data", listOf<Music>())
+    private val _data = savedStateHandle.getStateFlow("data", mutableListOf<Music>())
     private val _error = savedStateHandle.getStateFlow("error","")
     private val _currentMusic = savedStateHandle.getStateFlow<Int?>("current_music", null)
     private val _musicPause = savedStateHandle.getStateFlow("music_pause",false)
@@ -118,7 +119,7 @@ class MusicViewModel @Inject constructor(
 
     fun nextMusic(){
         val cns = _data.value.size - 1
-        if(_currentMusic.value == cns) setCurrentMusic(0)
+        if(_currentMusic.value!! >= cns) setCurrentMusic(0)
         else setCurrentMusic(_currentMusic.value!! + 1)
     }
 
@@ -176,6 +177,18 @@ class MusicViewModel @Inject constructor(
             _showControlScreen.value = true
         }
         _showControlScreen.value = !showControlScreen.value!!
+    }
+
+    fun deleteMusic(){
+        viewModelScope.launch {
+            useDeleteMusic.deleteMusic(_data.value[_currentMusic.value!!])
+
+            val last = _data.value
+            last.remove(last[_currentMusic.value!!])
+            savedStateHandle["data"] = last
+            stopMusic()
+            nextMusic()
+        }
     }
     private fun getMusic(){
 

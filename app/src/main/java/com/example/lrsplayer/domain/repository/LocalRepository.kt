@@ -16,5 +16,6 @@ interface LocalRepository {
     suspend fun insertMusicToDatabase(music: MusicEntity)
     suspend fun getAllMusicFromDatabase():List<MusicEntity>
     fun getMusicMetadata(filepath:String):MusicMetadataEntity
+    suspend fun deleteMusic(music: MusicEntity)
 
 }

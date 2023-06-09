@@ -4,9 +4,14 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -39,6 +44,7 @@ import kotlinx.coroutines.launch
 //Log.d("dfgdfgdfg",currentDuration)
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MusicControl(
     music:Music,
@@ -47,6 +53,7 @@ fun MusicControl(
     colors: ThemeColors,
     pause:Boolean,
     musicLoop:Boolean,
+    deleteMusic:() -> Unit,
     shuffleMusic:()->Unit,
     switchMusicLoop:() -> Unit,
     switchControlScreenVisible:()->Unit,
@@ -60,6 +67,10 @@ fun MusicControl(
     onLast:() -> Unit
 ) {
 
+
+    val showSettingMenu = remember {
+        mutableStateOf(false)
+    }
 
 
     val currentPosition = remember {
@@ -115,7 +126,7 @@ fun MusicControl(
             )
         }
     }
-
+    Log.d("sdfgsdfsdf", "###############")
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -132,6 +143,7 @@ fun MusicControl(
                         .fillMaxSize()
                         .background(colors.main_background.copy(alpha = 0.94f))
                 )
+
 
                 LazyColumn(
                     modifier = Modifier
@@ -160,7 +172,7 @@ fun MusicControl(
                                 )
                             }
                             SettingIcon(colors = colors) {
-
+                                showSettingMenu.value = !showSettingMenu.value
                             }
                         }
                     }
@@ -229,7 +241,9 @@ fun MusicControl(
                                     onClick = {
                                         switchMusicLoop()
                                     },
-                                    modifier = Modifier.size(20.dp).background(if(musicLoop) Color.Gray else Color.Transparent)
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .background(if (musicLoop) Color.Gray else Color.Transparent)
                                 ) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_baseline_repeat_24),
@@ -329,6 +343,22 @@ fun MusicControl(
                     }
 
                 }
+
+                if(showSettingMenu.value){
+                    Box(
+                        modifier = Modifier.align(Alignment.TopEnd).padding(top = 55.dp, end = 25.dp)
+                    ) {
+                        SettingMenu(
+                            colors = colors,
+                            onRemove = {
+                                showSettingMenu.value = !showSettingMenu.value
+                                deleteMusic()
+                            }
+                        )
+                    }
+                }
+
+
             }
         }else{
             Box(

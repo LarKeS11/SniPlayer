@@ -14,4 +14,8 @@ class DatabaseService(
     override suspend fun getAllMusic(): List<MusicEntity> {
         return musicDao.getAllMusic()
     }
+
+    override suspend fun deleteMusic(musicEntity: MusicEntity) {
+        musicDao.deleteMusic(musicEntity)
+    }
 }

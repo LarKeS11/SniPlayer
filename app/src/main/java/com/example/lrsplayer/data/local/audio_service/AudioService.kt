@@ -10,6 +10,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.core.net.toFile
+import androidx.core.net.toUri
 import java.io.*
 
 
@@ -60,6 +61,11 @@ class AudioService(
             author = author,
             image = if(image == null) null else getBitmapByBytesArray(image)
         )
+    }
+
+    override fun deleteFile(path: String) {
+        val file = File(path)
+        file.delete()
     }
 
 

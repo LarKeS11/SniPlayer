@@ -2,6 +2,7 @@ package com.example.lrsplayer.data.local.database_service.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.lrsplayer.data.local.database_service.entity.MusicEntity
@@ -15,5 +16,8 @@ interface MusicDao {
 
     @Query("SELECT * FROM musicentity")
     suspend fun getAllMusic():List<MusicEntity>
+
+    @Delete
+    suspend fun deleteMusic(musicEntity: MusicEntity)
 
 }

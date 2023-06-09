@@ -310,6 +310,10 @@ fun MusicScreen(
                     if (state.musicPause) viewModel.continueMusic()
                     else viewModel.pauseMusic()
                 },
+                deleteMusic = {
+                    Log.d("sdfgsdfsdf","######")
+                    viewModel.deleteMusic()
+                },
                 onNext = {
                     if (!musicTransition) {
                         viewModel.setMusicTransition(true)

@@ -7,4 +7,5 @@ interface AudioServiceInterface {
     fun saveAudioFile(uri: Uri): String
     fun getAudioFile(name:String):File
     fun getMusicMetadata(filepath:String):MusicMetadataEntity
+    fun deleteFile(path:String)
 }

@@ -7,5 +7,6 @@ interface DatabaseServiceInterface {
 
     suspend fun insertMusic(musicEntity: MusicEntity)
     suspend fun getAllMusic():List<MusicEntity>
+    suspend fun deleteMusic(musicEntity: MusicEntity)
 
 }

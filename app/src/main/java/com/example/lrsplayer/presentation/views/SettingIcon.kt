@@ -25,7 +25,7 @@ fun SettingIcon(
 
     Button(
         contentPadding = PaddingValues(0.dp),
-        onClick = { },
+        onClick = { callback()},
         elevation = ButtonDefaults.elevation(0.dp),
         colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
     ) {

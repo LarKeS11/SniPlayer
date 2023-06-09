@@ -36,4 +36,9 @@ class DataLocalRepository(
     override fun getMusicMetadata(filepath:String): MusicMetadataEntity {
         return audioService.getMusicMetadata(filepath)
     }
+
+    override suspend fun deleteMusic(music: MusicEntity) {
+        audioService.deleteFile(music.path)
+        databaseService.deleteMusic(music)
+    }
 }
