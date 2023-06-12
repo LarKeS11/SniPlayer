@@ -8,5 +8,6 @@ data class MusicState(
     val error:String = "",
     val currentMusic:Int? = null,
     val musicPause:Boolean = false,
-    val isLooping:Boolean = false
+    val isLooping:Boolean = false,
+    val searchText:String = ""
 )

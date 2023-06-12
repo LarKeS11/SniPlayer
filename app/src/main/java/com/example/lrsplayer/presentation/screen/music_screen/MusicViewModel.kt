@@ -13,8 +13,10 @@ import com.example.lrsplayer.domain.model.Music
 import com.example.lrsplayer.domain.usecase.*
 import com.example.lrsplayer.until.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -35,10 +37,13 @@ class MusicViewModel @Inject constructor(
     private val _currentMusic = savedStateHandle.getStateFlow<Int?>("current_music", null)
     private val _musicPause = savedStateHandle.getStateFlow("music_pause",false)
     private val _musicLooping = savedStateHandle.getStateFlow("music_loop",false)
+    private val _searchText = savedStateHandle.getStateFlow("search_text","")
 
     private var _musicPayer = MediaPlayer()
 
-    val state = combine(_isLoading, _data, _error, _currentMusic, _musicPause, _musicLooping){
+    private var constData:List<Music>? = null
+
+    val state = combine(_isLoading, _data, _error, _currentMusic, _musicPause, _musicLooping, _searchText){
         data ->
         MusicState(
             isLoading = data[0] as Boolean,
@@ -46,7 +51,8 @@ class MusicViewModel @Inject constructor(
             error = data[2] as String,
             currentMusic = data[3] as Int?,
             musicPause = data[4] as Boolean,
-            isLooping = data[5] as Boolean
+            isLooping = data[5] as Boolean,
+            searchText = data[6] as String
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MusicState())
 
@@ -58,6 +64,9 @@ class MusicViewModel @Inject constructor(
 
     private val _musicTransition = MutableStateFlow(false)
     val musicTransition = _musicTransition
+
+    private val _showSearchBar = MutableStateFlow(false)
+    val showSearchBar:StateFlow<Boolean> = _showSearchBar
 
 
     init {
@@ -71,9 +80,19 @@ class MusicViewModel @Inject constructor(
     }
 
     fun setCurrentMusic(index:Int?){
-        Log.d("sdfdsfsdf",index.toString())
         savedStateHandle["current_music"] = index
 
+    }
+
+    fun setSearchText(text:String){
+        viewModelScope.launch {
+            savedStateHandle["search_text"] = text
+            savedStateHandle["data"] = constData!!.filter {
+                it.name.toLowerCase(Locale.ROOT)
+                    .contains(text.toLowerCase(Locale.ROOT)) || it.author!!.toLowerCase(Locale.ROOT)
+                    .contains(text.toLowerCase(Locale.ROOT))
+            }
+        }
     }
 
     fun playMusic(music: Music, context: Context){
@@ -179,20 +198,32 @@ class MusicViewModel @Inject constructor(
         _showControlScreen.value = !showControlScreen.value!!
     }
 
-    fun deleteMusic(){
+    fun switchSearchBar(){
+        _showSearchBar.value = !_showSearchBar.value
+    }
+
+    fun deleteMusic(cnx:Context){
         viewModelScope.launch {
             useDeleteMusic.deleteMusic(_data.value[_currentMusic.value!!])
-
             val last = _data.value
             last.remove(last[_currentMusic.value!!])
             savedStateHandle["data"] = last
             stopMusic()
-            nextMusic()
+            if(_data.value.size == 1 && _currentMusic.value == 0) {
+                playMusic(_data.value[0], cnx)
+                pauseMusic()
+                continueMusic()
+            }
+            if(_data.value.size == 0) {
+                setCurrentMusic(null)
+                _showControlScreen.value = null
+            }
+            else if (_data.value.size >= 1) lastMusic()
         }
     }
-    private fun getMusic(){
+    private fun getMusic(text:String? = null){
 
-        useGetAllMusicFromLocalDatabase.invoke().onEach { res ->
+        useGetAllMusicFromLocalDatabase.invoke(text).onEach { res ->
 
             when(res){
                 is Resource.Loading -> {
@@ -203,6 +234,7 @@ class MusicViewModel @Inject constructor(
                     savedStateHandle["isLoading"] = false
                     savedStateHandle["error"] = ""
                     savedStateHandle["data"] = res.data
+                    constData = res.data
                 }
                 is Resource.Error -> {
                     savedStateHandle["isLoading"] = false

@@ -15,6 +15,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +59,7 @@ fun MusicScreen(
     val state by viewModel.state.collectAsState()
     val showControlScreen by viewModel.showControlScreen.collectAsState()
     val musicTransition by viewModel.musicTransition.collectAsState()
+    val showSearchBar by viewModel.showSearchBar.collectAsState()
 
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { res ->
@@ -62,6 +67,7 @@ fun MusicScreen(
     }
 
     LaunchedEffect(state.currentMusic) {
+
         if (state.currentMusic != null) {
             viewModel.playMusic(
                 music = state.data[state.currentMusic!!],
@@ -92,40 +98,57 @@ fun MusicScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(
-                                onClick = {  },
-                                modifier = Modifier
-                                    .width(16.dp)
-                                    .height(13.dp)
+                        if(!showSearchBar){
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.menu),
-                                    contentDescription = "",
+                                IconButton(
+                                    onClick = {  },
                                     modifier = Modifier
                                         .width(16.dp)
-                                        .height(13.dp),
-                                    tint = colors.title
+                                        .height(13.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.menu),
+                                        contentDescription = "",
+                                        modifier = Modifier
+                                            .width(16.dp)
+                                            .height(13.dp),
+                                        tint = colors.title
+                                    )
+                                }
+                                Text(
+                                    text = "SniPlayer",
+                                    fontSize = 20.sp,
+                                    fontFamily = sf_pro_text,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = colors.title
                                 )
                             }
-                            Text(
-                                text = "SniPlayer",
-                                fontSize = 20.sp,
-                                fontFamily = sf_pro_text,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = colors.title
-                            )
+                        }else{
+                            Box(
+                                modifier = Modifier.padding(start = 20.dp)
+                            ) {
+                                SearchBar(
+                                    text = state.searchText,
+                                    colors = colors,
+                                    onChange = {
+                                        viewModel.setSearchText(it)
+                                    }
+                                )
+                            }
+
                         }
                         IconButton(
-                            onClick = {  },
+                            onClick = {
+                                      viewModel.switchSearchBar()
+                            },
                             modifier = Modifier
                                 .size(30.dp)
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.baseline_search_24),
+                              if(!showSearchBar) Icons.Default.Search else Icons.Default.Close,
                                 contentDescription = "",
                                 modifier = Modifier
                                     .size(30.dp),
@@ -285,7 +308,7 @@ fun MusicScreen(
         Log.d("dfgfgdfg","there")
 
 
-        if(showControlScreen != null) {
+        if(showControlScreen != null && state.data.size > state.currentMusic!!) {
             MusicControl(
                 colors = colors,
                 pause = state.musicPause,
@@ -311,12 +334,14 @@ fun MusicScreen(
                     else viewModel.pauseMusic()
                 },
                 deleteMusic = {
-                    Log.d("sdfgsdfsdf","######")
-                    viewModel.deleteMusic()
+                    if (!musicTransition) {
+                        viewModel.setMusicTransition(true)
+                        viewModel.deleteMusic(appContext)
+                    }
+
                 },
                 onNext = {
                     if (!musicTransition) {
-                        viewModel.setMusicTransition(true)
                         viewModel.stopMusic()
                         viewModel.nextMusic()
                     }
