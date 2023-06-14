@@ -51,6 +51,7 @@ fun MusicScreen(
     colors:ThemeColors,
     viewModel: MusicViewModel = hiltViewModel(),
     appContext:Context,
+    setCurrentMusic:(Int)-> Unit,
     navController: NavController
 ) {
 
@@ -207,9 +208,9 @@ fun MusicScreen(
                                 .height(20.dp)
                         ){
                             if (!musicTransition) {
-                                viewModel.setMusicTransition(true)
-                                viewModel.shuffleMusic()
-                                viewModel.switchControlScreenState()
+//                                viewModel.setMusicTransition(true)
+//                                viewModel.shuffleMusic()
+//                                viewModel.switchControlScreenState()
                             }
                         }
                         MusicButton(

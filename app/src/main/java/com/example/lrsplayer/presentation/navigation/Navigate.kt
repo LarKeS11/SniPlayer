@@ -22,6 +22,7 @@ fun Navigate(
     navController: NavHostController,
     appContext:Context,
     colors:MutableStateFlow<ThemeColors>,
+    setCurrentMusic:(Int) -> Unit,
     setTheme:(String) -> Unit
 ) {
 
