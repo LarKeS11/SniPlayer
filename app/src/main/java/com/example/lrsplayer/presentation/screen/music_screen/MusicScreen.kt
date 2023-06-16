@@ -52,6 +52,7 @@ fun MusicScreen(
     viewModel: MusicViewModel = hiltViewModel(),
     appContext:Context,
     setCurrentMusic:(Int)-> Unit,
+    updateMusics:() -> Unit,
     navController: NavController
 ) {
 
@@ -61,21 +62,17 @@ fun MusicScreen(
     val showControlScreen by viewModel.showControlScreen.collectAsState()
     val musicTransition by viewModel.musicTransition.collectAsState()
     val showSearchBar by viewModel.showSearchBar.collectAsState()
+    val musicHasUpdated by viewModel.musicHasUpdated.collectAsState()
 
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { res ->
         viewModel.saveMusic(res!!)
     }
 
-    LaunchedEffect(state.currentMusic) {
 
-        if (state.currentMusic != null) {
-            viewModel.playMusic(
-                music = state.data[state.currentMusic!!],
-                context = appContext
-            )
-            viewModel.setMusicLooping()
-        }
+    LaunchedEffect(musicHasUpdated){
+        Log.d("dgdfgdfgdfg","#########")
+        updateMusics()
     }
 
     Log.d("sdfgdsfgsdf",state.isLooping.toString())
@@ -236,14 +233,13 @@ fun MusicScreen(
                 Spacer(modifier = Modifier.height(25.dp))
             }
 
+            Log.d("dgdfgdfg",state.data.size.toString())
+
             itemsIndexed(state.data){index, it ->
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        viewModel.switchControlScreenState()
-                        if(state.currentMusic == index)return@Button
-                        if(state.currentMusic != null) viewModel.stopMusic()
-                        viewModel.setCurrentMusic(index)
+                        setCurrentMusic(index)
                     },
                     elevation = ButtonDefaults.elevation(0.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
@@ -309,53 +305,53 @@ fun MusicScreen(
         Log.d("dfgfgdfg","there")
 
 
-        if(showControlScreen != null && state.data.size > state.currentMusic!!) {
-            MusicControl(
-                colors = colors,
-                pause = state.musicPause,
-                music = state.data[state.currentMusic!!],
-                musicLoop = state.isLooping,
-                showControlScreen = showControlScreen!!,
-                switchMusicLoop = {viewModel.switchLooping()},
-                shuffleMusic = {
-                    if (!musicTransition) {
-                        viewModel.setMusicTransition(true)
-                        viewModel.shuffleMusic()
-                    }
-                },
-                switchControlScreenVisible = {viewModel.switchControlScreenState()},
-                setMusicPosition = { viewModel.setMusicPosition(it) },
-                musicDuration = { viewModel.getMusicDuration() },
-                getMusicPercProgress = { viewModel.getMusicPercProgress() },
-                musicImage = viewModel.getMusicImage(state.data[state.currentMusic!!].path),
-                getCurrentPos = { viewModel.getCurrentMusicPosition() },
-                onClose = { viewModel.switchControlScreenState() },
-                onActive = {
-                    if (state.musicPause) viewModel.continueMusic()
-                    else viewModel.pauseMusic()
-                },
-                deleteMusic = {
-                    if (!musicTransition) {
-                        viewModel.setMusicTransition(true)
-                        viewModel.deleteMusic(appContext)
-                    }
-
-                },
-                onNext = {
-                    if (!musicTransition) {
-                        viewModel.stopMusic()
-                        viewModel.nextMusic()
-                    }
-                },
-                onLast = {
-                    if (!musicTransition) {
-                        viewModel.setMusicTransition(true)
-                        viewModel.stopMusic()
-                        viewModel.lastMusic()
-                    }
-                }
-            )
-        }
+//        if(showControlScreen != null && state.data.size > state.currentMusic!!) {
+//            MusicControl(
+//                colors = colors,
+//                pause = state.musicPause,
+//                music = state.data[state.currentMusic!!],
+//                musicLoop = state.isLooping,
+//                showControlScreen = showControlScreen!!,
+//                switchMusicLoop = {viewModel.switchLooping()},
+//                shuffleMusic = {
+//                    if (!musicTransition) {
+//                        viewModel.setMusicTransition(true)
+//                        viewModel.shuffleMusic()
+//                    }
+//                },
+//                switchControlScreenVisible = {viewModel.switchControlScreenState()},
+//                setMusicPosition = { viewModel.setMusicPosition(it) },
+//                musicDuration = { viewModel.getMusicDuration() },
+//                getMusicPercProgress = { viewModel.getMusicPercProgress() },
+//                musicImage = viewModel.getMusicImage(state.data[state.currentMusic!!].path),
+//                getCurrentPos = { viewModel.getCurrentMusicPosition() },
+//                onClose = { viewModel.switchControlScreenState() },
+//                onActive = {
+//                    if (state.musicPause) viewModel.continueMusic()
+//                    else viewModel.pauseMusic()
+//                },
+//                deleteMusic = {
+//                    if (!musicTransition) {
+//                        viewModel.setMusicTransition(true)
+//                        viewModel.deleteMusic(appContext)
+//                    }
+//
+//                },
+//                onNext = {
+//                    if (!musicTransition) {
+//                        viewModel.stopMusic()
+//                        viewModel.nextMusic()
+//                    }
+//                },
+//                onLast = {
+//                    if (!musicTransition) {
+//                        viewModel.setMusicTransition(true)
+//                        viewModel.stopMusic()
+//                        viewModel.lastMusic()
+//                    }
+//                }
+//            )
+//        }
 
     }
 

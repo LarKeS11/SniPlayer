@@ -68,6 +68,8 @@ class MusicViewModel @Inject constructor(
     private val _showSearchBar = MutableStateFlow(false)
     val showSearchBar:StateFlow<Boolean> = _showSearchBar
 
+    private val _musicHasUpdated = MutableStateFlow(false)
+    val musicHasUpdated:StateFlow<Boolean> = _musicHasUpdated
 
     init {
         getMusic()
@@ -95,13 +97,7 @@ class MusicViewModel @Inject constructor(
         }
     }
 
-    fun playMusic(music: Music, context: Context){
-        _musicPayer.setDataSource(context, music.path.toUri())
-        _musicPayer.prepare()
-        _musicPayer.start()
-        savedStateHandle["music_pause"] = false
-        setMusicTransition(false)
-    }
+
 
     fun shuffleMusic(){
         stopMusic()
@@ -180,6 +176,7 @@ class MusicViewModel @Inject constructor(
                     path = file.absolutePath
                 )
             )
+            _musicHasUpdated.value = !musicHasUpdated.value
             getMusic()
         }
     }
@@ -210,7 +207,6 @@ class MusicViewModel @Inject constructor(
             savedStateHandle["data"] = last
             stopMusic()
             if(_data.value.size == 1 && _currentMusic.value == 0) {
-                playMusic(_data.value[0], cnx)
                 pauseMusic()
                 continueMusic()
             }
@@ -231,12 +227,14 @@ class MusicViewModel @Inject constructor(
                     savedStateHandle["error"] = ""
                 }
                 is Resource.Success -> {
+                    Log.d("sdfsdfsdf","########")
                     savedStateHandle["isLoading"] = false
                     savedStateHandle["error"] = ""
                     savedStateHandle["data"] = res.data
                     constData = res.data
                 }
                 is Resource.Error -> {
+                    getMusic()
                     savedStateHandle["isLoading"] = false
                     savedStateHandle["error"] = res.message
                 }

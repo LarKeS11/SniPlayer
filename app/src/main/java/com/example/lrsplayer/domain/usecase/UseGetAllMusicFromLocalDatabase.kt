@@ -37,7 +37,8 @@ class UseGetAllMusicFromLocalDatabase(
 
             emit(Resource.Success(data))
         }catch (e:Exception){
-            emit(Resource.Error(e.toString()))
+            Log.d("sdfsdfsdfsdf",e.toString())
+            emit(Resource.Error(e.message.toString()))
         }
 
     }

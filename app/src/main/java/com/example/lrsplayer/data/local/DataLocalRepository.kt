@@ -38,7 +38,7 @@ class DataLocalRepository(
     }
 
     override suspend fun deleteMusic(music: MusicEntity) {
-        audioService.deleteFile(music.path)
+       // audioService.deleteFile(music.path)
         databaseService.deleteMusic(music)
     }
 }

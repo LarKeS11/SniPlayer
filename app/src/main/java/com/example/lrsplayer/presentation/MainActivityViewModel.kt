@@ -55,24 +55,33 @@ class MainActivityViewModel @Inject constructor(
 
     init {
         switchMainThemeColors(LIGHT_THEME)
-        useGetAllMusicFromLocalDatabase.invoke().onEach { res ->
-            when(res){
-                is Resource.Success -> {
-                    savedStateHandle["musics"] = res.data
-                }
-            }
-        }.launchIn(viewModelScope)
+        getMusics()
     }
 
     private val _currentMusic = MutableStateFlow<Int?>(null)
     val currentMusic:StateFlow<Int?> = _currentMusic
 
-    private val _showControlScreen = MutableStateFlow(false)
+    private val _showControlScreen = MutableStateFlow(true)
     val showControlScreen:StateFlow<Boolean> = _showControlScreen
 
     private val _musicTransition = MutableStateFlow(false)
     val musicTransition:StateFlow<Boolean> = _musicTransition
 
+
+    fun getMusics(){
+        useGetAllMusicFromLocalDatabase.invoke().onEach { res ->
+            when(res){
+                is Resource.Success -> {
+                    Log.d("sdfsdfsdf","$$$$$$$$")
+                    savedStateHandle["musics"] = res.data
+                }
+
+                is Resource.Error -> {
+                    getMusics()
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
     fun switchLooping(){
         savedStateHandle["isLooping"] = !_isLooping.value
     }
@@ -116,7 +125,10 @@ class MainActivityViewModel @Inject constructor(
     }
     fun lastMusic(){
         if(_currentMusic.value == 0) setCurrentMusic(_musics.value.size - 1)
-        else setCurrentMusic(_currentMusic.value!! - 1)
+        else {
+            Log.d("sdfsdfsdfdf",(_currentMusic.value!! - 1).toString())
+            setCurrentMusic(_currentMusic.value!! - 1)
+        }
     }
 
     fun deleteMusic(cnx: Context){
@@ -124,8 +136,7 @@ class MainActivityViewModel @Inject constructor(
             useDeleteMusic.deleteMusic(_musics.value[_currentMusic.value!!])
             val last = _musics.value
             last.remove(last[_currentMusic.value!!])
-            savedStateHandle["data"] = last
-            stopMusic()
+            savedStateHandle["musics"] = last
             if(_musics.value.size == 1 && _currentMusic.value == 0) {
                 playMusic(_musics.value[0], cnx)
                 pauseMusic()
@@ -135,7 +146,10 @@ class MainActivityViewModel @Inject constructor(
                 setCurrentMusic(null)
                 _showControlScreen.value = false
             }
-            else if (_musics.value.size >= 1) lastMusic()
+            else if (_musics.value.size >= 1) {
+                Log.d("sfsdfsdfsdf","######")
+                lastMusic()
+            }
         }
     }
 

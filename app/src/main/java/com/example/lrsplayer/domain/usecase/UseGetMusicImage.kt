@@ -9,8 +9,13 @@ class UseGetMusicImage(
 ) {
 
     fun execute(file: String):Bitmap?{
-        val meta = localRepository.getMusicMetadata(file)
-        return meta.image
+        return try {
+            val meta = localRepository.getMusicMetadata(file)
+            meta.image
+        }catch (e:Exception){
+            null
+        }
+
     }
 
 }

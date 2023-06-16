@@ -1,14 +1,17 @@
 package com.example.lrsplayer.presentation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.lrsplayer.presentation.navigation.Navigate
 import com.example.lrsplayer.presentation.screen.music_screen.MusicControl
@@ -28,17 +31,36 @@ class MainActivity : ComponentActivity() {
              val musicTransition by viewmodel.musicTransition.collectAsState()
 
 
+             LaunchedEffect(currentMusicIndex){
+                 if(currentMusicIndex != null){
+                     try {
+                         viewmodel.stopMusic()
+                     }catch (e:Exception){
+
+                     }
+                     viewmodel.playMusic(state.musics[currentMusicIndex!!], this@MainActivity)
+                     viewmodel.switchControlScreen()
+                 }
+             }
+
              val appColors by viewmodel.currentMainThemeColors.collectAsState()
              Box(modifier = Modifier.fillMaxSize()) {
                  Navigate(
                      navController = navController,
                      colors = viewmodel.currentMainThemeColors,
-                     appContext = this@MainActivity
+                     appContext = this@MainActivity,
+                     setCurrentMusic = {
+                         viewmodel.setCurrentMusic(it)
+                     },
+                     updateMusics = {
+                         viewmodel.getMusics()
+                     }
                  ){theme ->
                      viewmodel.switchMainThemeColors(theme)
                  }
              }
              if(currentMusicIndex != null){
+                 Log.d("fsdfsdfsd","ssssssss")
                  MusicControl(
                      colors = appColors,
                      pause = state.musicPause,

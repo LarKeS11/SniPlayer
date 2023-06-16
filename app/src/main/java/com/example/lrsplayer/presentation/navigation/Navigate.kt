@@ -23,6 +23,7 @@ fun Navigate(
     appContext:Context,
     colors:MutableStateFlow<ThemeColors>,
     setCurrentMusic:(Int) -> Unit,
+    updateMusics:() -> Unit,
     setTheme:(String) -> Unit
 ) {
 
@@ -54,7 +55,15 @@ fun Navigate(
         composable(
             route = Screen.MusicScreen.route
         ){
-            MusicScreen(colors = appColors, navController = navController, appContext = appContext)
+            MusicScreen(
+                colors = appColors,
+                navController = navController,
+                appContext = appContext,
+                setCurrentMusic = {setCurrentMusic(it)},
+                updateMusics = {
+                    updateMusics()
+                }
+            )
         }
 
         composable(
