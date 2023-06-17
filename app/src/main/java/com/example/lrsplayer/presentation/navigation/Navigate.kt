@@ -9,6 +9,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.lrsplayer.domain.model.Music
 import com.example.lrsplayer.presentation.screen.music_control_screen.MusicControlScreen
 import com.example.lrsplayer.presentation.screen.music_screen.MusicScreen
 import com.example.lrsplayer.presentation.screen.sign_in_screen.SignInScreen
@@ -22,6 +23,7 @@ fun Navigate(
     navController: NavHostController,
     appContext:Context,
     colors:MutableStateFlow<ThemeColors>,
+    listOfMusics:List<Music> = listOf(),
     setCurrentMusic:(Int) -> Unit,
     updateMusics:() -> Unit,
     setTheme:(String) -> Unit
@@ -62,7 +64,8 @@ fun Navigate(
                 setCurrentMusic = {setCurrentMusic(it)},
                 updateMusics = {
                     updateMusics()
-                }
+                },
+                listOfMusic = listOfMusics
             )
         }
 

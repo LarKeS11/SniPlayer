@@ -130,7 +130,7 @@ fun MusicControl(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        if(!showControlScreen){
+        if(showControlScreen){
             Box(modifier = Modifier
                 .fillMaxSize()
                 .background(colors.main_background)

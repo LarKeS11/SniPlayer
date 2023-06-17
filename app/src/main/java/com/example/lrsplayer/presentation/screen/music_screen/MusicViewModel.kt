@@ -70,11 +70,6 @@ class MusicViewModel @Inject constructor(
 
     private val _musicHasUpdated = MutableStateFlow(false)
     val musicHasUpdated:StateFlow<Boolean> = _musicHasUpdated
-
-    init {
-        getMusic()
-    }
-
     fun stopMusic(){
         _musicPayer.stop()
         _musicPayer.release()
@@ -177,7 +172,6 @@ class MusicViewModel @Inject constructor(
                 )
             )
             _musicHasUpdated.value = !musicHasUpdated.value
-            getMusic()
         }
     }
     fun switchLooping(){
@@ -217,31 +211,8 @@ class MusicViewModel @Inject constructor(
             else if (_data.value.size >= 1) lastMusic()
         }
     }
-    private fun getMusic(text:String? = null){
-
-        useGetAllMusicFromLocalDatabase.invoke(text).onEach { res ->
-
-            when(res){
-                is Resource.Loading -> {
-                    savedStateHandle["isLoading"] = true
-                    savedStateHandle["error"] = ""
-                }
-                is Resource.Success -> {
-                    Log.d("sdfsdfsdf","########")
-                    savedStateHandle["isLoading"] = false
-                    savedStateHandle["error"] = ""
-                    savedStateHandle["data"] = res.data
-                    constData = res.data
-                }
-                is Resource.Error -> {
-                    getMusic()
-                    savedStateHandle["isLoading"] = false
-                    savedStateHandle["error"] = res.message
-                }
-            }
-
-        }.launchIn(viewModelScope)
-
+    fun uploadMusics(musics:List<Music>){
+        savedStateHandle["data"] = musics
     }
 
 

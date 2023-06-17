@@ -61,7 +61,7 @@ class MainActivityViewModel @Inject constructor(
     private val _currentMusic = MutableStateFlow<Int?>(null)
     val currentMusic:StateFlow<Int?> = _currentMusic
 
-    private val _showControlScreen = MutableStateFlow(true)
+    private val _showControlScreen = MutableStateFlow(false)
     val showControlScreen:StateFlow<Boolean> = _showControlScreen
 
     private val _musicTransition = MutableStateFlow(false)
@@ -87,6 +87,7 @@ class MainActivityViewModel @Inject constructor(
     }
     fun setCurrentMusic(id:Int?){
         _currentMusic.value = id
+        setMusicTransition(false)
     }
     fun setMusicTransition(bool:Boolean){
         _musicTransition.value = bool
@@ -111,17 +112,21 @@ class MainActivityViewModel @Inject constructor(
     fun continueMusic(){
         savedStateHandle["music_pause"] = false
         _musicPayer.start()
+        setMusicTransition(false)
+    }
+    fun setMusicLooping(){
+        _musicPayer.isLooping = _isLooping.value
     }
     fun pauseMusic(){
         savedStateHandle["music_pause"] = true
         _musicPayer.pause()
+        setMusicTransition(false)
     }
     fun playMusic(music: Music, context: Context){
         _musicPayer.setDataSource(context, music.path.toUri())
         _musicPayer.prepare()
         _musicPayer.start()
         savedStateHandle["music_pause"] = false
-        setMusicTransition(false)
     }
     fun lastMusic(){
         if(_currentMusic.value == 0) setCurrentMusic(_musics.value.size - 1)
@@ -138,6 +143,7 @@ class MainActivityViewModel @Inject constructor(
             last.remove(last[_currentMusic.value!!])
             savedStateHandle["musics"] = last
             if(_musics.value.size == 1 && _currentMusic.value == 0) {
+                stopMusic()
                 playMusic(_musics.value[0], cnx)
                 pauseMusic()
                 continueMusic()
@@ -154,8 +160,8 @@ class MainActivityViewModel @Inject constructor(
     }
 
 
-    fun switchControlScreen(){
-        _showControlScreen.value = !_showControlScreen.value
+    fun switchControlScreen(bool:Boolean){
+         _showControlScreen.value = bool
     }
     fun getCurrentMusicPosition(): Int {
         return _musicPayer.currentPosition + 500

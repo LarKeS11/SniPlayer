@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
 
                      }
                      viewmodel.playMusic(state.musics[currentMusicIndex!!], this@MainActivity)
-                     viewmodel.switchControlScreen()
+                     viewmodel.setMusicLooping()
                  }
              }
 
@@ -50,11 +50,13 @@ class MainActivity : ComponentActivity() {
                      colors = viewmodel.currentMainThemeColors,
                      appContext = this@MainActivity,
                      setCurrentMusic = {
+                         viewmodel.switchControlScreen(true)
                          viewmodel.setCurrentMusic(it)
                      },
                      updateMusics = {
                          viewmodel.getMusics()
-                     }
+                     },
+                     listOfMusics = state.musics
                  ){theme ->
                      viewmodel.switchMainThemeColors(theme)
                  }
@@ -74,16 +76,19 @@ class MainActivity : ComponentActivity() {
                              viewmodel.shuffleMusic()
                          }
                      },
-                     switchControlScreenVisible = {viewmodel.switchControlScreen()},
+                     switchControlScreenVisible = {viewmodel.switchControlScreen(true)},
                      setMusicPosition = { viewmodel.setMusicPosition(it) },
                      musicDuration = { viewmodel.getMusicDuration() },
                      getMusicPercProgress = { viewmodel.getMusicPercProgress() },
                      musicImage = viewmodel.getMusicImage(state.musics[currentMusicIndex!!].path),
                      getCurrentPos = { viewmodel.getCurrentMusicPosition() },
-                     onClose = { viewmodel.switchControlScreen() },
+                     onClose = { viewmodel.switchControlScreen(false) },
                      onActive = {
-                         if (state.musicPause) viewmodel.continueMusic()
-                         else viewmodel.pauseMusic()
+                         if(!musicTransition){
+                             viewmodel.setMusicTransition(true)
+                             if (state.musicPause) viewmodel.continueMusic()
+                             else viewmodel.pauseMusic()
+                         }
                      },
                      deleteMusic = {
                          if (!musicTransition) {
@@ -94,6 +99,7 @@ class MainActivity : ComponentActivity() {
                      },
                      onNext = {
                          if (!musicTransition) {
+                             viewmodel.setMusicTransition(true)
                              viewmodel.stopMusic()
                              viewmodel.nextMusic()
                          }

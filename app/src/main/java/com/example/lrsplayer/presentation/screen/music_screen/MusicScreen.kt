@@ -38,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.lrsplayer.R
+import com.example.lrsplayer.domain.model.Music
 import com.example.lrsplayer.presentation.theme.sf_pro_text
 import com.example.lrsplayer.presentation.views.MusicButton
 import com.example.lrsplayer.presentation.views.PlayingView
@@ -50,6 +51,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 fun MusicScreen(
     colors:ThemeColors,
     viewModel: MusicViewModel = hiltViewModel(),
+    listOfMusic:List<Music> = listOf(),
     appContext:Context,
     setCurrentMusic:(Int)-> Unit,
     updateMusics:() -> Unit,
@@ -64,16 +66,18 @@ fun MusicScreen(
     val showSearchBar by viewModel.showSearchBar.collectAsState()
     val musicHasUpdated by viewModel.musicHasUpdated.collectAsState()
 
+    LaunchedEffect(musicHasUpdated){
+        updateMusics()
+    }
+
+    LaunchedEffect(listOfMusic){
+        viewModel.uploadMusics(listOfMusic)
+    }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { res ->
         viewModel.saveMusic(res!!)
     }
 
-
-    LaunchedEffect(musicHasUpdated){
-        Log.d("dgdfgdfgdfg","#########")
-        updateMusics()
-    }
 
     Log.d("sdfgdsfgsdf",state.isLooping.toString())
 
@@ -305,53 +309,6 @@ fun MusicScreen(
         Log.d("dfgfgdfg","there")
 
 
-//        if(showControlScreen != null && state.data.size > state.currentMusic!!) {
-//            MusicControl(
-//                colors = colors,
-//                pause = state.musicPause,
-//                music = state.data[state.currentMusic!!],
-//                musicLoop = state.isLooping,
-//                showControlScreen = showControlScreen!!,
-//                switchMusicLoop = {viewModel.switchLooping()},
-//                shuffleMusic = {
-//                    if (!musicTransition) {
-//                        viewModel.setMusicTransition(true)
-//                        viewModel.shuffleMusic()
-//                    }
-//                },
-//                switchControlScreenVisible = {viewModel.switchControlScreenState()},
-//                setMusicPosition = { viewModel.setMusicPosition(it) },
-//                musicDuration = { viewModel.getMusicDuration() },
-//                getMusicPercProgress = { viewModel.getMusicPercProgress() },
-//                musicImage = viewModel.getMusicImage(state.data[state.currentMusic!!].path),
-//                getCurrentPos = { viewModel.getCurrentMusicPosition() },
-//                onClose = { viewModel.switchControlScreenState() },
-//                onActive = {
-//                    if (state.musicPause) viewModel.continueMusic()
-//                    else viewModel.pauseMusic()
-//                },
-//                deleteMusic = {
-//                    if (!musicTransition) {
-//                        viewModel.setMusicTransition(true)
-//                        viewModel.deleteMusic(appContext)
-//                    }
-//
-//                },
-//                onNext = {
-//                    if (!musicTransition) {
-//                        viewModel.stopMusic()
-//                        viewModel.nextMusic()
-//                    }
-//                },
-//                onLast = {
-//                    if (!musicTransition) {
-//                        viewModel.setMusicTransition(true)
-//                        viewModel.stopMusic()
-//                        viewModel.lastMusic()
-//                    }
-//                }
-//            )
-//        }
 
     }
 
