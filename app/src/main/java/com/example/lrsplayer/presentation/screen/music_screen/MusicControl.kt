@@ -97,7 +97,6 @@ fun MusicControl(
                 duration.value = musicDuration()
                 currentPosition.value = SmallService.convertMillisecondsToTimeString(getCurrentPos())
                 if(musicDuration() == SmallService.convertMillisecondsToTimeString(getCurrentPos()) && !musicLoop){
-                    Log.d("fgsdfsdfsdf",musicLoop.toString())
                     duration.value = ""
                     onNext()
                 }

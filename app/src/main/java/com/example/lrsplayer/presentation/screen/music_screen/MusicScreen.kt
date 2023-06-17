@@ -79,159 +79,13 @@ fun MusicScreen(
     }
 
 
-    Log.d("sdfgdsfgsdf",state.isLooping.toString())
-
 
     Box(modifier = Modifier.fillMaxSize()){
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(colors.main_background)
-                .padding(top = 24.dp)
         ) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 13.dp, end = 32.dp)
-                ){
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if(!showSearchBar){
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                IconButton(
-                                    onClick = {  },
-                                    modifier = Modifier
-                                        .width(16.dp)
-                                        .height(13.dp)
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.menu),
-                                        contentDescription = "",
-                                        modifier = Modifier
-                                            .width(16.dp)
-                                            .height(13.dp),
-                                        tint = colors.title
-                                    )
-                                }
-                                Text(
-                                    text = "SniPlayer",
-                                    fontSize = 20.sp,
-                                    fontFamily = sf_pro_text,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = colors.title
-                                )
-                            }
-                        }else{
-                            Box(
-                                modifier = Modifier.padding(start = 20.dp)
-                            ) {
-                                SearchBar(
-                                    text = state.searchText,
-                                    colors = colors,
-                                    onChange = {
-                                        viewModel.setSearchText(it)
-                                    }
-                                )
-                            }
-
-                        }
-                        IconButton(
-                            onClick = {
-                                      viewModel.switchSearchBar()
-                            },
-                            modifier = Modifier
-                                .size(30.dp)
-                        ) {
-                            Icon(
-                              if(!showSearchBar) Icons.Default.Search else Icons.Default.Close,
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .size(30.dp),
-                                tint = colors.title
-                            )
-                        }
-
-                    }
-                }
-            }
-
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 17.dp)
-                        .padding(top = 30.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(25.dp)
-                    ) {
-                        Text(
-                            text = "Songs",
-                            fontSize = 13.sp,
-                            color = colors.title,
-                            fontFamily = sf_pro_text,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "Playlist",
-                            fontSize = 13.sp,
-                            color = colors.title,
-                            fontFamily = sf_pro_text,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "Albums",
-                            fontSize = 13.sp,
-                            color = colors.title,
-                            fontFamily = sf_pro_text,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        MusicButton(
-                            icon = R.drawable.__icon__shuffle_,
-                            colors = colors,
-                            modifier = Modifier
-                                .width(22.dp)
-                                .height(20.dp)
-                        ){
-                            if (!musicTransition) {
-//                                viewModel.setMusicTransition(true)
-//                                viewModel.shuffleMusic()
-//                                viewModel.switchControlScreenState()
-                            }
-                        }
-                        MusicButton(
-                            icon = R.drawable.musicfilter,
-                            colors = colors,
-                            modifier = Modifier.size(22.dp)
-                        ){
-
-                        }
-                        MusicButton(
-                            icon = R.drawable.baseline_add_circle_outline_24,
-                            colors = colors,
-                            modifier = Modifier.size(23.dp)
-                        ){
-                            launcher.launch("audio/*")
-                        }
-                    }
-
-                }
-            }
 
             item {
                 Spacer(modifier = Modifier.height(25.dp))
@@ -303,6 +157,9 @@ fun MusicScreen(
 
                 }
                 Spacer(modifier = Modifier.height(4.dp))
+            }
+            item { 
+                Spacer(modifier = Modifier.height(40.dp))
             }
         }
 

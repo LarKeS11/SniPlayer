@@ -3,6 +3,7 @@ package com.example.lrsplayer.presentation
 import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaPlayer
+import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
@@ -11,7 +12,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.lrsplayer.domain.model.Music
 import com.example.lrsplayer.domain.usecase.UseDeleteMusic
 import com.example.lrsplayer.domain.usecase.UseGetAllMusicFromLocalDatabase
+import com.example.lrsplayer.domain.usecase.UseGetAudioFile
 import com.example.lrsplayer.domain.usecase.UseGetMusicImage
+import com.example.lrsplayer.domain.usecase.UseInsertMusicToLocalDatabase
+import com.example.lrsplayer.domain.usecase.UseSaveAudioFile
 import com.example.lrsplayer.until.Constants
 import com.example.lrsplayer.until.Constants.LIGHT_THEME
 import com.example.lrsplayer.until.Resource
@@ -24,6 +28,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -32,7 +37,10 @@ class MainActivityViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val useGetAllMusicFromLocalDatabase: UseGetAllMusicFromLocalDatabase,
     private val useGetMusicImage: UseGetMusicImage,
-    private val useDeleteMusic: UseDeleteMusic
+    private val useDeleteMusic: UseDeleteMusic,
+    private val useSaveAudioFile: UseSaveAudioFile,
+    private val useGetAudioFile: UseGetAudioFile,
+    private val useInsertMusicToLocalDatabase: UseInsertMusicToLocalDatabase
 ):ViewModel() {
 
     private val _currentMainThemeColors = MutableStateFlow(Constants.LIGHT_THEME_COLORS)
@@ -40,16 +48,18 @@ class MainActivityViewModel @Inject constructor(
 
     private val _musicPause = savedStateHandle.getStateFlow("music_pause",false)
     private val _musics = savedStateHandle.getStateFlow("musics", mutableListOf<Music>())
-    private val _isLooping = savedStateHandle.getStateFlow("isLooping",false)
+     val _isLooping = savedStateHandle.getStateFlow("isLooping",false)
+    private val _searchText = savedStateHandle.getStateFlow("search_text","")
 
     private var _musicPayer = MediaPlayer()
 
-    val state = combine(_musicPause,_musics,_isLooping){
+    val state = combine(_musicPause,_musics,_isLooping, _searchText){
         data ->
         MusicControlState(
             musicPause = data[0] as Boolean,
             musics = data[1] as List<Music>,
-            isLooping = data[2] as Boolean
+            isLooping = data[2] as Boolean,
+            searchText = data[3] as String
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MusicControlState())
 
@@ -67,6 +77,10 @@ class MainActivityViewModel @Inject constructor(
     private val _musicTransition = MutableStateFlow(false)
     val musicTransition:StateFlow<Boolean> = _musicTransition
 
+    private val _showSearchBar = MutableStateFlow(false)
+    val showSearchBar:StateFlow<Boolean> = _showSearchBar
+
+    private var constData:List<Music>? = null
 
     fun getMusics(){
         useGetAllMusicFromLocalDatabase.invoke().onEach { res ->
@@ -84,6 +98,37 @@ class MainActivityViewModel @Inject constructor(
     }
     fun switchLooping(){
         savedStateHandle["isLooping"] = !_isLooping.value
+        setMusicLooping()
+    }
+
+    fun switchSearchBar(){
+        _showSearchBar.value = !_showSearchBar.value
+    }
+
+    fun setSearchText(text:String){
+        viewModelScope.launch {
+            savedStateHandle["search_text"] = text
+            savedStateHandle["musics"] = constData!!.filter {
+                it.name.toLowerCase(Locale.ROOT)
+                    .contains(text.toLowerCase(Locale.ROOT)) || it.author!!.toLowerCase(Locale.ROOT)
+                    .contains(text.toLowerCase(Locale.ROOT))
+            }
+        }
+    }
+
+    fun saveMusic(uri: Uri){
+
+        viewModelScope.launch {
+            val fileName = useSaveAudioFile.execute(uri)
+            val file = useGetAudioFile.execute(fileName)
+
+            useInsertMusicToLocalDatabase.execute(
+                Music(
+                    name = fileName,
+                    path = file.absolutePath
+                )
+            )
+        }
     }
     fun setCurrentMusic(id:Int?){
         _currentMusic.value = id
@@ -95,7 +140,7 @@ class MainActivityViewModel @Inject constructor(
 
     fun shuffleMusic(){
         stopMusic()
-        savedStateHandle["data"] = _musics.value.shuffled()
+        savedStateHandle["musics"] = _musics.value.shuffled()
         if(_currentMusic.value == null) setCurrentMusic(0)
         else nextMusic()
     }
@@ -115,8 +160,10 @@ class MainActivityViewModel @Inject constructor(
         setMusicTransition(false)
     }
     fun setMusicLooping(){
+        Log.d("sdfsdfsdfsd",_isLooping.value.toString())
         _musicPayer.isLooping = _isLooping.value
     }
+
     fun pauseMusic(){
         savedStateHandle["music_pause"] = true
         _musicPayer.pause()
