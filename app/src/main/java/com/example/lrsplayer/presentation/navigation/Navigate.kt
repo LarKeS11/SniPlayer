@@ -12,6 +12,7 @@ import androidx.navigation.navArgument
 import com.example.lrsplayer.domain.model.Music
 import com.example.lrsplayer.presentation.screen.music_control_screen.MusicControlScreen
 import com.example.lrsplayer.presentation.screen.music_screen.MusicScreen
+import com.example.lrsplayer.presentation.screen.playlist_screen.PlaylistScreen
 import com.example.lrsplayer.presentation.screen.sign_in_screen.SignInScreen
 import com.example.lrsplayer.presentation.screen.sign_up_screen.SignUpScreen
 import com.example.lrsplayer.presentation.screen.splash_screen.SplashScreen
@@ -67,6 +68,12 @@ fun Navigate(
                 },
                 listOfMusic = listOfMusics
             )
+        }
+
+        composable(
+            route = Screen.PlaylistScreen.route
+        ){
+            PlaylistScreen(appColors)
         }
 
         composable(

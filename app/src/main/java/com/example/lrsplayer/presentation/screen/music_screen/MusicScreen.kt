@@ -61,9 +61,6 @@ fun MusicScreen(
 
 
     val state by viewModel.state.collectAsState()
-    val showControlScreen by viewModel.showControlScreen.collectAsState()
-    val musicTransition by viewModel.musicTransition.collectAsState()
-    val showSearchBar by viewModel.showSearchBar.collectAsState()
     val musicHasUpdated by viewModel.musicHasUpdated.collectAsState()
 
     LaunchedEffect(musicHasUpdated){
@@ -73,11 +70,6 @@ fun MusicScreen(
     LaunchedEffect(listOfMusic){
         viewModel.uploadMusics(listOfMusic)
     }
-
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { res ->
-        viewModel.saveMusic(res!!)
-    }
-
 
 
     Box(modifier = Modifier.fillMaxSize()){
@@ -91,7 +83,6 @@ fun MusicScreen(
                 Spacer(modifier = Modifier.height(25.dp))
             }
 
-            Log.d("dgdfgdfg",state.data.size.toString())
 
             itemsIndexed(state.data){index, it ->
                 Button(
@@ -162,9 +153,6 @@ fun MusicScreen(
                 Spacer(modifier = Modifier.height(40.dp))
             }
         }
-
-        Log.d("dfgfgdfg","there")
-
 
 
     }

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -29,6 +30,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.lrsplayer.R
 import com.example.lrsplayer.presentation.navigation.Navigate
+import com.example.lrsplayer.presentation.navigation.Screen
 import com.example.lrsplayer.presentation.screen.music_screen.MusicControl
 import com.example.lrsplayer.presentation.screen.music_screen.SearchBar
 import com.example.lrsplayer.presentation.theme.sf_pro_text
@@ -77,7 +81,7 @@ class MainActivity : ComponentActivity() {
              Box(
                  modifier = Modifier
                      .fillMaxSize()
-                     .padding(top = if(!showControlScreen) 94.dp else 0.dp)
+                     .padding(top = if (!showControlScreen) 94.dp else 0.dp)
              ) {
                  Navigate(
                      navController = navController,
@@ -153,7 +157,9 @@ class MainActivity : ComponentActivity() {
 
              if(!showControlScreen){
                  Box(
-                     modifier = Modifier.fillMaxSize().padding(top = 24.dp),
+                     modifier = Modifier
+                         .fillMaxSize()
+                         .padding(top = 24.dp),
                      contentAlignment = Alignment.TopCenter
                  ) {
 
@@ -239,27 +245,40 @@ class MainActivity : ComponentActivity() {
                              Row(
                                  horizontalArrangement = Arrangement.spacedBy(25.dp)
                              ) {
-                                 Text(
-                                     text = "Songs",
-                                     fontSize = 13.sp,
-                                     color = appColors.title,
-                                     fontFamily = sf_pro_text,
-                                     fontWeight = FontWeight.SemiBold
-                                 )
-                                 Text(
-                                     text = "Playlist",
-                                     fontSize = 13.sp,
-                                     color = appColors.title,
-                                     fontFamily = sf_pro_text,
-                                     fontWeight = FontWeight.SemiBold
-                                 )
-                                 Text(
-                                     text = "Albums",
-                                     fontSize = 13.sp,
-                                     color = appColors.title,
-                                     fontFamily = sf_pro_text,
-                                     fontWeight = FontWeight.SemiBold
-                                 )
+                                 ClickableText(
+                                     text = AnnotatedString("Songs"),
+                                     style = TextStyle(
+                                         fontSize = 13.sp,
+                                         color = appColors.title,
+                                         fontFamily = sf_pro_text,
+                                         fontWeight = FontWeight.SemiBold
+                                     )
+                                 ){
+                                    navController.navigate(Screen.MusicScreen.route)
+                                 }
+                                 ClickableText(
+                                     text = AnnotatedString("Playlist"),
+                                     style = TextStyle(
+                                         fontSize = 13.sp,
+                                         color = appColors.title,
+                                         fontFamily = sf_pro_text,
+                                         fontWeight = FontWeight.SemiBold
+                                     )
+                                 ){
+                                     navController.navigate(Screen.PlaylistScreen.route)
+
+                                 }
+                                 ClickableText(
+                                     text = AnnotatedString("Albums"),
+                                     style = TextStyle(
+                                         fontSize = 13.sp,
+                                         color = appColors.title,
+                                         fontFamily = sf_pro_text,
+                                         fontWeight = FontWeight.SemiBold
+                                     )
+                                 ){
+
+                                 }
                              }
 
                              Row(
