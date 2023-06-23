@@ -52,7 +52,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 @Composable
 fun NewPlaylistAlertDialog(
     colors:ThemeColors,
-    onSubmit:() -> Unit,
+    onSubmit:(String, Uri?) -> Unit,
     onDismiss:() -> Unit
 ) {
 
@@ -205,9 +205,11 @@ fun NewPlaylistAlertDialog(
                                 fontFamily = sf_pro_text
                             )
                         ){
-                            onSubmit()
+                            onSubmit(
+                                playlistName.value,
+                                selectedImageUri.value
+                            )
                         }
-                        
                     }
 
                 }

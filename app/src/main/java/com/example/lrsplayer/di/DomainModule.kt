@@ -83,5 +83,29 @@ object DomainModule {
         return UseDeleteMusic(localRepository)
     }
 
+    @Provides
+    fun provideUseLocalSaveImageByNameAndUri(
+        localRepository: LocalRepository
+    ):UseLocalSaveImageByNameAndUri{
+        return UseLocalSaveImageByNameAndUri(localRepository = localRepository)
+    }
+
+    @Provides
+    fun provideUseLocalSavePlaylist(
+        localRepository: LocalRepository
+    ):UseLocalSavePlaylist{
+        return UseLocalSavePlaylist(localRepository)
+    }
+
+
+    @Provides
+    fun provideUseGetPlaylists(
+        localRepository: LocalRepository
+    ):UseGetPlaylists{
+        return UseGetPlaylists(
+            localRepository = localRepository
+        )
+    }
+
 
 }

@@ -8,6 +8,7 @@ import com.example.lrsplayer.data.local.DataLocalRepository
 import com.example.lrsplayer.data.local.audio_service.AudioService
 import com.example.lrsplayer.data.local.database_service.AppDatabase
 import com.example.lrsplayer.data.local.database_service.dao.MusicDao
+import com.example.lrsplayer.data.local.database_service.dao.PlaylistDao
 import com.example.lrsplayer.data.local.database_service.service.DatabaseService
 import com.example.lrsplayer.data.local.ids_service.IdsService
 import com.example.lrsplayer.data.local.image_service.ImageService
@@ -48,11 +49,19 @@ object DataModule {
 
     @Singleton
     @Provides
+    fun providePlaylistDao(database: AppDatabase):PlaylistDao{
+        return database.playlistDao()
+    }
+
+    @Singleton
+    @Provides
     fun provideDatabaseService(
-        musicDao: MusicDao
+        musicDao: MusicDao,
+        playlistDao: PlaylistDao
     ):DatabaseService{
         return DatabaseService(
-            musicDao = musicDao
+            musicDao = musicDao,
+            playlistDao = playlistDao
         )
     }
 
@@ -93,6 +102,7 @@ object DataModule {
     fun provideAudioService(context: Context):AudioService{
         return AudioService(context = context)
     }
+
 
     @Singleton
     @Provides
