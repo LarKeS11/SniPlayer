@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -34,15 +35,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.lrsplayer.R
 import com.example.lrsplayer.domain.model.Playlist
+import com.example.lrsplayer.presentation.navigation.Screen
 import com.example.lrsplayer.presentation.theme.sf_pro_text
 import com.example.lrsplayer.until.ThemeColors
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PlaylistScreen(
     colors: ThemeColors,
+    navController: NavController,
     viewModel: PlaylistViewModel = hiltViewModel(),
 ) {
     
@@ -89,7 +94,10 @@ fun PlaylistScreen(
                                 .height(170.dp),
                             backgroundColor = colors.playlist_card,
                             shape = RoundedCornerShape(12.dp),
-                            elevation = 5.dp
+                            elevation = 5.dp,
+                            onClick = {
+                                navController.navigate(Screen.PlaylistMusicsScreen.withArgs(playlist.id.toString()))
+                            }
                         ) {
                             Box(
                                 modifier = Modifier

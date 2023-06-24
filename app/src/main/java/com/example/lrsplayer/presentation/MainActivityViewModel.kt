@@ -5,6 +5,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -80,6 +81,9 @@ class MainActivityViewModel @Inject constructor(
     private val _showSearchBar = MutableStateFlow(false)
     val showSearchBar:StateFlow<Boolean> = _showSearchBar
 
+    private val _showTopBar = MutableStateFlow(true)
+    val showTopBar:StateFlow<Boolean> = _showTopBar
+
     private var constData:List<Music>? = null
 
     fun getMusics(){
@@ -116,6 +120,9 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
+    fun switchShowingTopBar(bool:Boolean){
+        _showTopBar.value = bool
+    }
     fun saveMusic(uri: Uri){
 
         viewModelScope.launch {

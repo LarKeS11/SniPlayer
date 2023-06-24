@@ -8,6 +8,7 @@ sealed class Screen(val route:String) {
     object SplashScreen:Screen("splash_screen")
     object MusicControlScreen:Screen("music_control_screen")
     object PlaylistScreen:Screen("playlist_screen")
+    object PlaylistMusicsScreen:Screen("playlist_musics_screen")
 
     fun withArgs(vararg args: String):String{
         return buildString {

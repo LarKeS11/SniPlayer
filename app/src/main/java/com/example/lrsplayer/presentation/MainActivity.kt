@@ -59,6 +59,7 @@ class MainActivity : ComponentActivity() {
              val showControlScreen by viewmodel.showControlScreen.collectAsState()
              val musicTransition by viewmodel.musicTransition.collectAsState()
              val showSearchBar by viewmodel.showSearchBar.collectAsState()
+             val showTopBar by viewmodel.showTopBar.collectAsState()
 
              val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { res ->
                  viewmodel.saveMusic(res!!)
@@ -81,7 +82,7 @@ class MainActivity : ComponentActivity() {
              Box(
                  modifier = Modifier
                      .fillMaxSize()
-                     .padding(top = if (!showControlScreen) 94.dp else 0.dp)
+                     .padding(top = if (!showControlScreen && showTopBar) 94.dp else 0.dp)
              ) {
                  Navigate(
                      navController = navController,
@@ -94,7 +95,10 @@ class MainActivity : ComponentActivity() {
                      updateMusics = {
                          viewmodel.getMusics()
                      },
-                     listOfMusics = state.musics
+                     listOfMusics = state.musics,
+                     showTopBar = {bool ->
+                         viewmodel.switchShowingTopBar(bool)
+                     }
                  ){theme ->
                      viewmodel.switchMainThemeColors(theme)
                  }
@@ -155,7 +159,7 @@ class MainActivity : ComponentActivity() {
              }
 
 
-             if(!showControlScreen){
+             if(!showControlScreen && showTopBar){
                  Box(
                      modifier = Modifier
                          .fillMaxSize()

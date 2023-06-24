@@ -12,6 +12,7 @@ import androidx.navigation.navArgument
 import com.example.lrsplayer.domain.model.Music
 import com.example.lrsplayer.presentation.screen.music_control_screen.MusicControlScreen
 import com.example.lrsplayer.presentation.screen.music_screen.MusicScreen
+import com.example.lrsplayer.presentation.screen.playlist_musics_screen.PlaylistMusicsScreen
 import com.example.lrsplayer.presentation.screen.playlist_screen.PlaylistScreen
 import com.example.lrsplayer.presentation.screen.sign_in_screen.SignInScreen
 import com.example.lrsplayer.presentation.screen.sign_up_screen.SignUpScreen
@@ -25,6 +26,7 @@ fun Navigate(
     appContext:Context,
     colors:MutableStateFlow<ThemeColors>,
     listOfMusics:List<Music> = listOf(),
+    showTopBar:(Boolean) -> Unit = {},
     setCurrentMusic:(Int) -> Unit,
     updateMusics:() -> Unit,
     setTheme:(String) -> Unit
@@ -73,13 +75,27 @@ fun Navigate(
         composable(
             route = Screen.PlaylistScreen.route
         ){
-            PlaylistScreen(appColors)
+            PlaylistScreen(appColors, navController)
         }
 
         composable(
             route = Screen.MusicControlScreen.route
         ){
             MusicControlScreen(id = 12, colors = appColors)
+        }
+
+        composable(
+            route = Screen.PlaylistMusicsScreen.route + "/{id}",
+            arguments = listOf(
+                navArgument("id"){
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ){entry ->
+            showTopBar(false)
+            val id = entry.arguments!!.getString("id")!!.toInt()
+            PlaylistMusicsScreen(playlistId = id, colors = appColors)
         }
 
     }
