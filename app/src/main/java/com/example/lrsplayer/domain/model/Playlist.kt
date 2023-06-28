@@ -7,6 +7,6 @@ class Playlist(
     val id:Int? = null,
     val imgSrc:String?,
     val name:String,
-    val musics:List<Int>,
+    val musics:MutableList<Int>,
     val imageFile: File? = null
 ): Serializable

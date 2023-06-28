@@ -39,6 +39,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.lrsplayer.R
 import com.example.lrsplayer.domain.model.Music
+import com.example.lrsplayer.presentation.screen.views.MusicItem
 import com.example.lrsplayer.presentation.theme.sf_pro_text
 import com.example.lrsplayer.presentation.views.MusicButton
 import com.example.lrsplayer.presentation.views.PlayingView
@@ -85,67 +86,12 @@ fun MusicScreen(
 
 
             itemsIndexed(state.data){index, it ->
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        setCurrentMusic(index)
-                    },
-                    elevation = ButtonDefaults.elevation(0.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
+                MusicItem(
+                    music = it,
+                    colors = colors,
+                    image = viewModel.getMusicImage(it.path)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 17.dp)
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            val img = viewModel.getMusicImage(it.path)
-                            if(img == null){
-                                Image(
-                                     painterResource(id = R.drawable.no_music_image),
-                                    contentDescription = "",
-                                    modifier = Modifier
-                                        .size(50.dp)
-                                        .clip(RoundedCornerShape(6.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
-                            } else{
-                                Image(
-                                    viewModel.getMusicImage(it.path)!!.asImageBitmap(),
-                                    contentDescription = "",
-                                    modifier = Modifier
-                                        .size(50.dp)
-                                        .clip(RoundedCornerShape(6.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                Text(
-                                    text = it.name,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = sf_pro_text,
-                                    color = colors.title,
-                                    modifier = Modifier.width(200.dp)
-                                )
-                                Text(
-                                    text = it.author ?: "no author",
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    fontFamily = sf_pro_text,
-                                    color = colors.title
-                                )
-                            }
-                        }
-                        if(state.currentMusic!= null && index == state.currentMusic!!) PlayingView(pause = state.musicPause, colors = colors)
-                    }
-
+                    setCurrentMusic(index)
                 }
                 Spacer(modifier = Modifier.height(4.dp))
             }

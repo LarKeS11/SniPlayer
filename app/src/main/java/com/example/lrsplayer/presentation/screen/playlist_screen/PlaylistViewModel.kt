@@ -89,7 +89,7 @@ class PlaylistViewModel @Inject constructor(
                 Playlist(
                     name = name,
                     imgSrc = if(uri == null) null else name,
-                    musics = listOf()
+                    musics = mutableListOf()
                 )
             )
             getPlaylists()

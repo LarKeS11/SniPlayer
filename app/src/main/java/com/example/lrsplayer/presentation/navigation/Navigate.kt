@@ -76,6 +76,7 @@ fun Navigate(
             route = Screen.PlaylistScreen.route
         ){
             PlaylistScreen(appColors, navController)
+            showTopBar(true)
         }
 
         composable(
@@ -85,17 +86,22 @@ fun Navigate(
         }
 
         composable(
-            route = Screen.PlaylistMusicsScreen.route + "/{id}",
+            route = Screen.PlaylistMusicsScreen.route + "/{playlistId}",
             arguments = listOf(
-                navArgument("id"){
+                navArgument("playlistId"){
                     type = NavType.StringType
                     defaultValue = ""
                 }
             )
         ){entry ->
+
+            val id = entry.arguments!!.getString("playlistId")!!.toInt()
+            PlaylistMusicsScreen(
+                playlistId = id,
+                colors = appColors,
+                navController = navController
+            )
             showTopBar(false)
-            val id = entry.arguments!!.getString("id")!!.toInt()
-            PlaylistMusicsScreen(playlistId = id, colors = appColors)
         }
 
     }

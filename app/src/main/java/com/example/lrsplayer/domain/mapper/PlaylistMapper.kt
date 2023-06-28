@@ -23,7 +23,7 @@ fun PlaylistEntity.toPlaylist(file: File? = null):Playlist{
         id = id!!,
         name = name,
         imgSrc = imgSrc,
-        musics = arr,
+        musics = arr.toMutableList(),
         imageFile = file
     )
 }

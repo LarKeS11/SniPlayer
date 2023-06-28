@@ -107,5 +107,18 @@ object DomainModule {
         )
     }
 
+    @Provides
+    fun provideUseAddNewMusicToPlaylist(
+        localRepository: LocalRepository
+    ): UseAddNewMusicToPlaylist{
+        return UseAddNewMusicToPlaylist(localRepository)
+    }
+
+    @Provides
+    fun provideUseGetPlaylistMusics(
+        localRepository: LocalRepository
+    ):UseGetPlaylistMusics{
+        return UseGetPlaylistMusics(localRepository)
+    }
 
 }

@@ -39,9 +39,6 @@ class MusicViewModel @Inject constructor(
     private val _musicLooping = savedStateHandle.getStateFlow("music_loop",false)
     private val _searchText = savedStateHandle.getStateFlow("search_text","")
 
-    private var _musicPayer = MediaPlayer()
-
-    private var constData:List<Music>? = null
 
     val state = combine(_isLoading, _data, _error, _currentMusic, _musicPause, _musicLooping, _searchText){
         data ->
