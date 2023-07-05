@@ -61,31 +61,11 @@ class PlaylistMusicScreenViewModel @Inject constructor(
     val allMusics = _allMusics
 
     init {
-        getMusics()
     }
 
     fun getMusicImage(file: String) = useGetMusicImage.execute(file)
 
-    private fun getMusics(){
-        useGetPlaylistMusics.invoke(savedStateHandle.get<String>("playlistId")!!.toInt()).onEach { res ->
-            when(res){
-                is Resource.Loading -> {
-                    savedStateHandle["isLoading"] = true
-                }
-                is Resource.Success -> {
-                    savedStateHandle["isLoading"] = false
-                    savedStateHandle["error"] = ""
-                    savedStateHandle["data"] = res.data
-                    getMusicsNotInPlaylist()
-                }
-                is Resource.Error -> {
-                    savedStateHandle["error"] = res.message
-                }
-            }
-        }.launchIn(viewModelScope)
-    }
-
-    private fun getMusicsNotInPlaylist(){
+     fun getMusicsNotInPlaylist(musics:List<Music>){
         useGetAllMusicFromLocalDatabase.invoke().onEach { res ->
             when(res){
                 is Resource.Loading -> {
@@ -95,7 +75,7 @@ class PlaylistMusicScreenViewModel @Inject constructor(
                     savedStateHandle["isLoading"] = false
                     savedStateHandle["error"] = ""
                     _allMusics.clear()
-                    res.data!!.filter {cur -> cur.id !in _data.value.map { it.id } }.forEach {
+                    res.data!!.filter {cur -> cur.id !in musics.map { it.id } }.forEach {
                         _allMusics.add(it)
                     }
                 }
@@ -105,6 +85,8 @@ class PlaylistMusicScreenViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
+
+
 
     fun switchEditMode(){
         _editMode.value = !_editMode.value
@@ -133,10 +115,8 @@ class PlaylistMusicScreenViewModel @Inject constructor(
     fun addAllNewMusics(){
         viewModelScope.launch {
             currentSelectedMusics.forEach {
-                Log.d("sdfsdfsdfsdf",it.toString())
                 useAddNewMusicToPlaylist.execute(savedStateHandle.get<String>("playlistId")!!.toInt(), it)
             }
-            getMusics()
             resetSelectedMusic()
         }
     }

@@ -1,5 +1,6 @@
 package com.example.lrsplayer.presentation.screen.playlist_screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,26 +49,20 @@ import com.example.lrsplayer.until.ThemeColors
 fun PlaylistScreen(
     colors: ThemeColors,
     navController: NavController,
+    playlists:List<Playlist>,
+    getPlaylists:() -> Unit,
     viewModel: PlaylistViewModel = hiltViewModel(),
 ) {
-    
-    val state by viewModel.state.collectAsState()
 
     val dialogActive by viewModel.dialogActive.collectAsState()
 
-    if(dialogActive) {
-        NewPlaylistAlertDialog(
-            colors = colors,
-            onSubmit = {name, uri ->
-                viewModel.setDialogActive(false)
-                viewModel.createNewPlaylist(name = name, uri = uri)
-                       },
-            onDismiss = {
-                viewModel.setDialogActive(false)
-            }
-        )
+    Log.d("sdfsdfsdfds","#########")
+
+    LaunchedEffect(Unit){
+        getPlaylists()
     }
-    
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +75,7 @@ fun PlaylistScreen(
             item { 
                 Spacer(modifier = Modifier.height(40.dp))
             }
-            itemsIndexed(state.playlists){index, item ->
+            itemsIndexed(viewModel.divideByPairs(playlists)){index, item ->
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -157,26 +152,6 @@ fun PlaylistScreen(
             }
             
         }
-
-        Box(
-            modifier = Modifier
-                .padding(bottom = 80.dp, end = 34.dp)
-                .align(Alignment.BottomEnd)
-        ) {
-            IconButton(
-                onClick = {
-                    viewModel.setDialogActive(true)
-                }
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.__icon__add_circle_),
-                    contentDescription = "",
-                    modifier = Modifier.size(58.dp),
-                    tint = colors.title
-                )
-            }
-        }
-
     }
     
 }

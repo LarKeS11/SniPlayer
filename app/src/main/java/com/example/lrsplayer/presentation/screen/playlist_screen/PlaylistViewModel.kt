@@ -44,61 +44,18 @@ class PlaylistViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PlayListScreenState())
 
-    init {
-        getPlaylists()
-    }
-
 
     private val _dialogActive = MutableStateFlow(false)
     val dialogActive:StateFlow<Boolean> = _dialogActive
 
 
 
-    fun setDialogActive(bool:Boolean){
-        _dialogActive.value = bool
+    fun divideByPairs(list:List<Playlist>):List<List<Playlist>>{
+        return list.withIndex()
+            .groupBy { it.index / 2 }
+            .map { it.value.map { it.value } }
     }
 
-    private fun getPlaylists(){
 
-        useGetPlaylists.invoke().onEach { res ->
-            when(res){
-                is Resource.Loading -> {
-                    savedStateHandle["is_loading"] = true
-                }
-                is Resource.Success -> {
-                    savedStateHandle["is_loading"] = false
-                    savedStateHandle["error"] = ""
-                    savedStateHandle["playlists"] = res.data!!.withIndex()
-                        .groupBy { it.index / 2 }
-                        .map { it.value.map { it.value } }
-                }
-                is Resource.Error -> {
-                    savedStateHandle["error"] = res.message
-                }
-            }
-        }.launchIn(viewModelScope)
-
-    }
-
-    fun createNewPlaylist(
-        name:String,
-        uri:Uri?
-    ){
-        viewModelScope.launch {
-            useLocalSavePlaylist.execute(
-                Playlist(
-                    name = name,
-                    imgSrc = if(uri == null) null else name,
-                    musics = mutableListOf()
-                )
-            )
-            getPlaylists()
-        }
-        viewModelScope.launch {
-            if(uri != null){
-                useLocalSaveImageByNameAndUri.execute(name = name, uri = uri)
-            }
-        }
-    }
 
 }

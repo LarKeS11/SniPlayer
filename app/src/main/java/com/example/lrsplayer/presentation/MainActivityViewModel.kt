@@ -11,11 +11,16 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lrsplayer.domain.model.Music
+import com.example.lrsplayer.domain.model.Playlist
 import com.example.lrsplayer.domain.usecase.UseDeleteMusic
 import com.example.lrsplayer.domain.usecase.UseGetAllMusicFromLocalDatabase
 import com.example.lrsplayer.domain.usecase.UseGetAudioFile
 import com.example.lrsplayer.domain.usecase.UseGetMusicImage
+import com.example.lrsplayer.domain.usecase.UseGetPlaylistMusics
+import com.example.lrsplayer.domain.usecase.UseGetPlaylists
 import com.example.lrsplayer.domain.usecase.UseInsertMusicToLocalDatabase
+import com.example.lrsplayer.domain.usecase.UseLocalSaveImageByNameAndUri
+import com.example.lrsplayer.domain.usecase.UseLocalSavePlaylist
 import com.example.lrsplayer.domain.usecase.UseSaveAudioFile
 import com.example.lrsplayer.until.Constants
 import com.example.lrsplayer.until.Constants.LIGHT_THEME
@@ -41,7 +46,11 @@ class MainActivityViewModel @Inject constructor(
     private val useDeleteMusic: UseDeleteMusic,
     private val useSaveAudioFile: UseSaveAudioFile,
     private val useGetAudioFile: UseGetAudioFile,
-    private val useInsertMusicToLocalDatabase: UseInsertMusicToLocalDatabase
+    private val useInsertMusicToLocalDatabase: UseInsertMusicToLocalDatabase,
+    private val useGetPlaylists: UseGetPlaylists,
+    private val useLocalSavePlaylist: UseLocalSavePlaylist,
+    private val useLocalSaveImageByNameAndUri:UseLocalSaveImageByNameAndUri,
+    private val useGetPlaylistMusics: UseGetPlaylistMusics
 ):ViewModel() {
 
     private val _currentMainThemeColors = MutableStateFlow(Constants.LIGHT_THEME_COLORS)
@@ -84,13 +93,41 @@ class MainActivityViewModel @Inject constructor(
     private val _showTopBar = MutableStateFlow(true)
     val showTopBar:StateFlow<Boolean> = _showTopBar
 
+    private val _playlistDialogModeState = MutableStateFlow(false)
+    val playlistDialogModeState:StateFlow<Boolean> = _playlistDialogModeState
+
     private var constData:List<Music>? = null
+
+    fun switchPlaylistDialogMode(bool:Boolean){
+        _playlistDialogModeState.value = bool
+    }
+
+    fun createNewPlaylist(
+        name:String,
+        uri:Uri?
+    ){
+        viewModelScope.launch {
+            useLocalSavePlaylist.execute(
+                Playlist(
+                    name = name,
+                    imgSrc = if(uri == null) null else name,
+                    musics = mutableListOf()
+                )
+            )
+            getPlaylists()
+        }
+        viewModelScope.launch {
+            if(uri != null){
+                useLocalSaveImageByNameAndUri.execute(name = name, uri = uri)
+            }
+        }
+    }
 
     fun getMusics(){
         useGetAllMusicFromLocalDatabase.invoke().onEach { res ->
             when(res){
                 is Resource.Success -> {
-                    Log.d("sdfsdfsdf","$$$$$$$$")
+
                     savedStateHandle["musics"] = res.data
                 }
 
@@ -100,6 +137,36 @@ class MainActivityViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
+
+    fun getPlaylistMusics(id:Int){
+        useGetPlaylistMusics.invoke(id).onEach { res ->
+            when(res){
+                is Resource.Success -> {
+                    savedStateHandle["musics"] = res.data
+                }
+
+                is Resource.Error -> {
+                    getMusics()
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private val _playlistsList = MutableStateFlow<List<Playlist>>(listOf())
+    val playlistsList:StateFlow<List<Playlist>> = _playlistsList
+
+    fun getPlaylists(){
+        useGetPlaylists.invoke().onEach {res ->
+            when(res){
+                is Resource.Success -> {
+                    _playlistsList.value = res.data!!
+                }
+
+                else -> {}
+            }
+        }.launchIn(viewModelScope)
+    }
+
     fun switchLooping(){
         savedStateHandle["isLooping"] = !_isLooping.value
         setMusicLooping()

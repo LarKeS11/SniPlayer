@@ -1,6 +1,7 @@
 package com.example.lrsplayer.presentation.screen.playlist_musics_screen
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -54,18 +56,29 @@ import com.example.lrsplayer.until.ThemeColors
 
 @Composable
 fun PlaylistMusicsScreen(
-    playlistId: Int,
     colors: ThemeColors,
     navController: NavController,
+    musics:List<Music>,
+    getMusics:() -> Unit,
+    setCurrentMusic:(Int) -> Unit,
     viewModel: PlaylistMusicScreenViewModel = hiltViewModel()
 ) {
+
+ //   Log.d("sdfsdfsdfds","#########")
+
 
     val musicsState by viewModel.state.collectAsState()
     val editMode by viewModel.editMode.collectAsState()
     val playlistName by viewModel.playlistName.collectAsState()
     val alertDialogMode by viewModel.alertDialogMode.collectAsState()
+    val musicNotInPlaylist = viewModel.allMusics
+    LaunchedEffect(key1 = musics, block = {
+        viewModel.getMusicsNotInPlaylist(musics)
+    })
 
-    val musicsNotInPlaylist = viewModel.allMusics
+    LaunchedEffect(key1 = Unit, block = {
+        getMusics()
+    })
 
 
     Scaffold(
@@ -166,6 +179,7 @@ fun PlaylistMusicsScreen(
                         onDismiss = {
                             viewModel.resetSelectedMusic()
                             viewModel.switchAlertDialogMode(false)
+                            getMusics()
                         }
                     ) {
 
@@ -187,7 +201,7 @@ fun PlaylistMusicsScreen(
                                 .fillMaxWidth()
                                 .heightIn(200.dp, 400.dp)
                                 .padding(end = 20.dp)){
-                                itemsIndexed(musicsNotInPlaylist){index, item ->
+                                itemsIndexed(musicNotInPlaylist){index, item ->
                                     MusicItemWithCheckBox(
                                         music = item,
                                         colors = colors,
@@ -220,14 +234,14 @@ fun PlaylistMusicsScreen(
                 }
             }
 
-           itemsIndexed(musicsState.data){index, item ->
+           itemsIndexed(musics){index, item ->
 
                MusicItem(
                    music = item,
                    colors = colors,
                    image = viewModel.getMusicImage(item.path)
                ) {
-
+                   setCurrentMusic(index)
                }
 
            }

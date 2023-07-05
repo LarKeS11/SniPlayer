@@ -1,6 +1,7 @@
 package com.example.lrsplayer.presentation.navigation
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -10,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.lrsplayer.domain.model.Music
+import com.example.lrsplayer.domain.model.Playlist
 import com.example.lrsplayer.presentation.screen.music_control_screen.MusicControlScreen
 import com.example.lrsplayer.presentation.screen.music_screen.MusicScreen
 import com.example.lrsplayer.presentation.screen.playlist_musics_screen.PlaylistMusicsScreen
@@ -26,15 +28,20 @@ fun Navigate(
     appContext:Context,
     colors:MutableStateFlow<ThemeColors>,
     listOfMusics:List<Music> = listOf(),
+    listOfPlaylists:List<Playlist> = listOf(),
+    getPlaylists:() -> Unit,
     showTopBar:(Boolean) -> Unit = {},
     setCurrentMusic:(Int) -> Unit,
     updateMusics:() -> Unit,
+    getPlaylistMusics:(Int) -> Unit = {},
     setTheme:(String) -> Unit
 ) {
 
     val appColors by colors.collectAsState()
 
     NavHost(navController = navController, startDestination = Screen.MusicScreen.route){
+
+        Log.d("sdfsdfsdfds","#########")
 
         composable(
             route = Screen.SplashScreen.route
@@ -75,7 +82,14 @@ fun Navigate(
         composable(
             route = Screen.PlaylistScreen.route
         ){
-            PlaylistScreen(appColors, navController)
+            PlaylistScreen(
+                colors = appColors,
+                navController = navController,
+                playlists = listOfPlaylists,
+                getPlaylists = {
+                    getPlaylists()
+                }
+            )
             showTopBar(true)
         }
 
@@ -94,12 +108,17 @@ fun Navigate(
                 }
             )
         ){entry ->
-
             val id = entry.arguments!!.getString("playlistId")!!.toInt()
             PlaylistMusicsScreen(
-                playlistId = id,
                 colors = appColors,
-                navController = navController
+                navController = navController,
+                musics = listOfMusics,
+                getMusics = {
+                    getPlaylistMusics(id)
+                },
+                setCurrentMusic = {
+                    setCurrentMusic(it)
+                }
             )
             showTopBar(false)
         }

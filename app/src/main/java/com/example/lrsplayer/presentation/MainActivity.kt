@@ -42,6 +42,7 @@ import com.example.lrsplayer.presentation.navigation.Navigate
 import com.example.lrsplayer.presentation.navigation.Screen
 import com.example.lrsplayer.presentation.screen.music_screen.MusicControl
 import com.example.lrsplayer.presentation.screen.music_screen.SearchBar
+import com.example.lrsplayer.presentation.screen.playlist_screen.NewPlaylistAlertDialog
 import com.example.lrsplayer.presentation.theme.sf_pro_text
 import com.example.lrsplayer.presentation.views.MusicButton
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,11 +61,16 @@ class MainActivity : ComponentActivity() {
              val musicTransition by viewmodel.musicTransition.collectAsState()
              val showSearchBar by viewmodel.showSearchBar.collectAsState()
              val showTopBar by viewmodel.showTopBar.collectAsState()
+             val playlists by viewmodel.playlistsList.collectAsState()
+             val playlistDialogModeState by viewmodel.playlistDialogModeState.collectAsState()
 
              val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { res ->
                  viewmodel.saveMusic(res!!)
                  viewmodel.getMusics()
              }
+
+
+       //      Log.d("sdfsdfsdfds","#########")
 
              LaunchedEffect(currentMusicIndex){
                  if(currentMusicIndex != null){
@@ -84,10 +90,26 @@ class MainActivity : ComponentActivity() {
                      .fillMaxSize()
                      .padding(top = if (!showControlScreen && showTopBar) 94.dp else 0.dp)
              ) {
+                 if(playlistDialogModeState) {
+                     NewPlaylistAlertDialog(
+                         colors = appColors,
+                         onSubmit = {name, uri ->
+                             viewmodel.switchPlaylistDialogMode(false)
+                             viewmodel.createNewPlaylist(name = name, uri = uri)
+                         },
+                         onDismiss = {
+                             viewmodel.switchPlaylistDialogMode(false)
+                         }
+                     )
+                 }
                  Navigate(
                      navController = navController,
                      colors = viewmodel.currentMainThemeColors,
                      appContext = this@MainActivity,
+                     listOfPlaylists = playlists,
+                     getPlaylists = {
+                         viewmodel.getPlaylists()
+                     },
                      setCurrentMusic = {
                          viewmodel.switchControlScreen(true)
                          viewmodel.setCurrentMusic(it)
@@ -98,6 +120,9 @@ class MainActivity : ComponentActivity() {
                      listOfMusics = state.musics,
                      showTopBar = {bool ->
                          viewmodel.switchShowingTopBar(bool)
+                     },
+                     getPlaylistMusics = {
+                         viewmodel.getPlaylistMusics(it)
                      }
                  ){theme ->
                      viewmodel.switchMainThemeColors(theme)
@@ -166,6 +191,10 @@ class MainActivity : ComponentActivity() {
                          .padding(top = 24.dp),
                      contentAlignment = Alignment.TopCenter
                  ) {
+
+
+
+
 
                      Column() {
                          Box(
@@ -314,7 +343,14 @@ class MainActivity : ComponentActivity() {
                                      colors = appColors,
                                      modifier = Modifier.size(23.dp)
                                  ){
-                                     launcher.launch("audio/*")
+                                     if(navController.currentDestination != null) {
+                                         if (navController.currentDestination!!.route == Screen.MusicScreen.route) {
+                                             launcher.launch("audio/*")
+                                         }
+                                         if(navController.currentDestination!!.route == Screen.PlaylistScreen.route){
+                                             viewmodel.switchPlaylistDialogMode(true)
+                                         }
+                                     }
                                  }
                              }
 

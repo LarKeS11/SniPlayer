@@ -1,6 +1,7 @@
 package com.example.lrsplayer.presentation.screen.playlist_screen
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -160,34 +161,50 @@ fun NewPlaylistAlertDialog(
             ) {
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    modifier = Modifier.padding(bottom = 20.dp)
                 ) {
 
-                    ClickableText(
-                        text = AnnotatedString("Cancel"),
-                        style = TextStyle(
-                            color = colors.title,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = sf_pro_text
-                        )
-                    ){
-                        onDismiss()
-                    }
-                    ClickableText(
-                        text = AnnotatedString("Create"),
-                        style = TextStyle(
-                            color = colors.title,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = sf_pro_text
-                        )
-                    ){
-                        onSubmit(
-                            playlistName.value,
-                            selectedImageUri.value
+                    Button(
+                        onClick = {
+                            onDismiss()
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+                        contentPadding = PaddingValues(0.dp),
+                        elevation = ButtonDefaults.elevation(0.dp)
+                    ) {
+                        Text(
+                            text = "Cancel",
+                            style = TextStyle(
+                                color = colors.title,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = sf_pro_text
+                            )
                         )
                     }
+                    Button(
+                        onClick = {
+                            onSubmit(
+                                playlistName.value,
+                                selectedImageUri.value
+                            )
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+                        contentPadding = PaddingValues(0.dp),
+                        elevation = ButtonDefaults.elevation(0.dp)
+                    ) {
+                        Text(
+                            text = "Create",
+                            style = TextStyle(
+                                color = colors.title,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = sf_pro_text
+                            )
+                        )
+                    }
+
                 }
 
             }
