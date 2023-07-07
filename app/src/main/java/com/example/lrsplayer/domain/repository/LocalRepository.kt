@@ -23,6 +23,7 @@ interface LocalRepository {
     suspend fun insertPlaylist(playlistEntity: PlaylistEntity)
     suspend fun getPlaylists():List<PlaylistEntity>
     suspend fun getPlaylistById(id:Int):PlaylistEntity
+    suspend fun deletePlaylist(playlistEntity: PlaylistEntity)
 
     fun saveImage(name:String, uri:Uri)
     fun getImageByName(name:String):File

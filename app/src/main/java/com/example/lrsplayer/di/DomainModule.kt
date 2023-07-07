@@ -121,4 +121,28 @@ object DomainModule {
         return UseGetPlaylistMusics(localRepository)
     }
 
+    @Provides
+    fun provideUseEditPlaylistName(
+        localRepository: LocalRepository
+    ):UseEditPlaylistName{
+        return UseEditPlaylistName(
+            localRepository = localRepository
+        )
+    }
+
+    @Provides
+    fun provideUseGetPlaylistById(
+        localRepository: LocalRepository
+    ):UseGetPlaylistById = UseGetPlaylistById(localRepository)
+
+    @Provides
+    fun provideUseDeletePlaylistMusic(
+        localRepository: LocalRepository
+    ):UseDeletePlaylistMusic = UseDeletePlaylistMusic(localRepository = localRepository)
+
+    @Provides
+    fun provideUseDeletePlaylist(
+        localRepository: LocalRepository
+    ) = UseDeletePlaylist(localRepository)
+
 }

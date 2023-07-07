@@ -14,5 +14,6 @@ interface DatabaseServiceInterface {
     suspend fun insertPlaylist(playlistEntity: PlaylistEntity)
     suspend fun getPlaylists():List<PlaylistEntity>
     suspend fun getPlaylistById(id:Int):PlaylistEntity
+    suspend fun deletePlaylist(playlistEntity: PlaylistEntity)
 
 }

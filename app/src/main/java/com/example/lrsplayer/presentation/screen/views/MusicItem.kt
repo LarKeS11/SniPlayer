@@ -1,7 +1,9 @@
 package com.example.lrsplayer.presentation.screen.views
 
 import android.graphics.Bitmap
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,21 +33,30 @@ import com.example.lrsplayer.presentation.theme.sf_pro_text
 import com.example.lrsplayer.presentation.views.PlayingView
 import com.example.lrsplayer.until.ThemeColors
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MusicItem(
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    modifier: Modifier = Modifier,
     music:Music,
     colors:ThemeColors,
     image:Bitmap? = null,
+    isSelected:Boolean = false,
+    onLongClick:() -> Unit = {},
     onClick:() -> Unit
 ) {
-    Button(
-        modifier = modifier,
-        onClick = {
-            onClick()
-        },
-        elevation = ButtonDefaults.elevation(0.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
+    Card(
+        modifier = modifier
+            .combinedClickable(
+                onLongClick = {
+                    onLongClick()
+                },
+                onClick = {
+                    onClick()
+                }
+            )
+        ,
+        backgroundColor = if(isSelected) colors.second_main_background else Color.Transparent,
+        elevation = 0.dp
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -95,7 +107,6 @@ fun MusicItem(
                     )
                 }
             }
-          //  if(state.currentMusic!= null && index == state.currentMusic!!) PlayingView(pause = state.musicPause, colors = colors)
         }
 
     }

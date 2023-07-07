@@ -33,4 +33,8 @@ class DatabaseService(
     override suspend fun getPlaylistById(id: Int): PlaylistEntity {
         return playlistDao.getPlaylistById(id)
     }
+
+    override suspend fun deletePlaylist(playlistEntity: PlaylistEntity) {
+        playlistDao.deletePlaylist(playlistEntity)
+    }
 }

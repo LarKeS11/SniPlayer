@@ -8,6 +8,6 @@ class PlaylistEntity(
     @PrimaryKey(autoGenerate = true)
     var id:Int? = null,
     val imgSrc:String?,
-    val name:String,
+    var name:String,
     val musics:String
 )

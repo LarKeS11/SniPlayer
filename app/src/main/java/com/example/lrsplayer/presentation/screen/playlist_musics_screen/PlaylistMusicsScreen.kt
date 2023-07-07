@@ -1,7 +1,6 @@
 package com.example.lrsplayer.presentation.screen.playlist_musics_screen
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,24 +15,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -44,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.example.lrsplayer.R
 import com.example.lrsplayer.domain.model.Music
 import com.example.lrsplayer.presentation.screen.views.DialogWrapper
@@ -53,6 +51,7 @@ import com.example.lrsplayer.presentation.theme.sf_pro_text
 import com.example.lrsplayer.presentation.views.MusicButton
 import com.example.lrsplayer.presentation.views.PrimaryButton
 import com.example.lrsplayer.until.ThemeColors
+import kotlinx.coroutines.launch
 
 @Composable
 fun PlaylistMusicsScreen(
@@ -64,14 +63,16 @@ fun PlaylistMusicsScreen(
     viewModel: PlaylistMusicScreenViewModel = hiltViewModel()
 ) {
 
- //   Log.d("sdfsdfsdfds","#########")
-
-
-    val musicsState by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsState()
     val editMode by viewModel.editMode.collectAsState()
     val playlistName by viewModel.playlistName.collectAsState()
     val alertDialogMode by viewModel.alertDialogMode.collectAsState()
     val musicNotInPlaylist = viewModel.allMusics
+    val selectedMusics by viewModel.selectedMusicsState.collectAsState()
+    val selectingMode by viewModel.selectingModeState.collectAsState()
+
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(key1 = musics, block = {
         viewModel.getMusicsNotInPlaylist(musics)
     })
@@ -88,7 +89,7 @@ fun PlaylistMusicsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)
-                    .padding(horizontal = 35.dp),
+                    .padding(start = 20.dp, end = 35.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
                 Box(
@@ -117,47 +118,104 @@ fun PlaylistMusicsScreen(
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if(!editMode){
-                        Text(
-                            text = "My playlist",
-                            color = colors.title,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontFamily = sf_pro_text
-                        )
-                    }else{
-                        MusicTextField(text = playlistName, colors = colors, modifier = Modifier
-                            .height(22.dp)
-                            .fillMaxWidth()){
+                    if (!editMode) {
+                        if (state.playlist != null) {
+                            Text(
+                                text = state.playlist!!.name,
+                                color = colors.title,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontFamily = sf_pro_text
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                viewModel.switchEditMode()
+                            },
+                            modifier = Modifier
+                                .size(18.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Edit,
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(18.dp),
+                                tint = colors.title
+                            )
+                        }
+                        if (selectedMusics.isNotEmpty()) {
+                            IconButton(
+                                onClick = {
+                                    viewModel.deleteAllSelectedMusics() {
+                                        getMusics()
+                                    }
+                                },
+                                modifier = Modifier.size(23.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "",
+                                    tint = colors.title,
+                                    modifier = Modifier.size(23.dp)
+                                )
+                            }
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        MusicTextField(
+                            text = playlistName, colors = colors, modifier = Modifier
+                                .height(22.dp)
+                                .fillMaxWidth(0.72f)
+                        ) {
                             viewModel.editPlaylistName(it)
                         }
-                    }
-                    
-                    IconButton(
-                        onClick = {
-                            viewModel.switchEditMode()      
-                        },
-                        modifier = Modifier
-                            .size(18.dp)
-                    ) {
-                        Icon(
-                            if(!editMode) Icons.Default.Edit else Icons.Default.Done,
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(18.dp),
-                            tint = colors.title
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(5f),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    viewModel.changePlaylistName()
+                                },
+                                modifier = Modifier.size(23.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Done,
+                                    contentDescription = "",
+                                    tint = colors.title,
+                                    modifier = Modifier.size(23.dp)
+                                )
+                            }
+                            IconButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        viewModel.deletePlaylist()
+                                        navController.popBackStack()
+                                    }
+                                },
+                                modifier = Modifier.size(23.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "",
+                                    tint = colors.title,
+                                    modifier = Modifier.size(23.dp)
+                                )
+                            }
+                        }
                     }
                 }
-                Box(
-                    modifier = Modifier.padding(top = 3.dp)
-                ) {
-                    MusicButton(
-                        icon = R.drawable.baseline_add_circle_outline_24,
-                        colors = colors,
-                        modifier = Modifier.size(23.dp)
-                    ){
-                        viewModel.switchAlertDialogMode(true)
+                if(!editMode){
+                    Box(
+                        modifier = Modifier.padding(top = 3.dp)
+                    ) {
+                        MusicButton(
+                            icon = R.drawable.baseline_add_circle_outline_24,
+                            colors = colors,
+                            modifier = Modifier.size(23.dp)
+                        ) {
+                            viewModel.switchAlertDialogMode(true)
+                        }
                     }
                 }
             }
@@ -226,7 +284,9 @@ fun PlaylistMusicsScreen(
                                     fontWeight = FontWeight.SemiBold
                                 )
                             ) {
-                                viewModel.addAllNewMusics()
+                                viewModel.addAllNewMusics() {
+                                    getMusics()
+                                }
                                 viewModel.switchAlertDialogMode(false)
                             }
                         }
@@ -239,9 +299,25 @@ fun PlaylistMusicsScreen(
                MusicItem(
                    music = item,
                    colors = colors,
-                   image = viewModel.getMusicImage(item.path)
+                   image = viewModel.getMusicImage(item.path),
+                   isSelected = item in selectedMusics,
+                   onLongClick = {
+                       if (!selectingMode) {
+                           viewModel.setSelectingMode(true)
+                           viewModel.selectNewMusic(item)
+                       }
+                   }
                ) {
-                   setCurrentMusic(index)
+                   if (selectingMode) {
+                       if (item !in selectedMusics) viewModel.selectNewMusic(item)
+                       else {
+                           if (selectedMusics.size == 1) viewModel.setSelectingMode(false)
+                           viewModel.unSelectMusic(item)
+
+                       }
+                   }
+
+                   if (!selectingMode) setCurrentMusic(index)
                }
 
            }

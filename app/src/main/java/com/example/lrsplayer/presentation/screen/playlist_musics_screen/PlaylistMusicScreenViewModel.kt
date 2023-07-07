@@ -6,9 +6,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lrsplayer.domain.model.Music
+import com.example.lrsplayer.domain.model.Playlist
 import com.example.lrsplayer.domain.usecase.UseAddNewMusicToPlaylist
+import com.example.lrsplayer.domain.usecase.UseDeletePlaylist
+import com.example.lrsplayer.domain.usecase.UseDeletePlaylistMusic
+import com.example.lrsplayer.domain.usecase.UseEditPlaylistName
 import com.example.lrsplayer.domain.usecase.UseGetAllMusicFromLocalDatabase
 import com.example.lrsplayer.domain.usecase.UseGetMusicImage
+import com.example.lrsplayer.domain.usecase.UseGetPlaylistById
 import com.example.lrsplayer.domain.usecase.UseGetPlaylistMusics
 import com.example.lrsplayer.until.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,19 +33,22 @@ class PlaylistMusicScreenViewModel @Inject constructor(
     private val useGetMusicImage: UseGetMusicImage,
     private val savedStateHandle: SavedStateHandle,
     private val useAddNewMusicToPlaylist: UseAddNewMusicToPlaylist,
-    private val useGetPlaylistMusics: UseGetPlaylistMusics
+    private val useEditPlaylistName: UseEditPlaylistName,
+    private val useGetPlaylistById: UseGetPlaylistById,
+    private val useDeletePlaylistMusic: UseDeletePlaylistMusic,
+    private val useDeletePlaylist: UseDeletePlaylist
 ):ViewModel() {
 
+    private val _playlist = savedStateHandle.getStateFlow<Playlist?>("playlist", null)
     private val _isLoading = savedStateHandle.getStateFlow("isLoading", false)
-    private val _data = savedStateHandle.getStateFlow("data", mutableListOf<Music>())
     private val _error = savedStateHandle.getStateFlow("error","")
 
-    val state = combine(_isLoading, _data, _error){
-        loading, data, error ->
+    val state = combine(_playlist, _isLoading, _error){
+            _playlist, loading, error ->
         PlaylistMusicsScreenState(
+            playlist = _playlist,
             isLoading = loading,
-            error = error,
-            data = data
+            error = error
         )
 
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PlaylistMusicsScreenState())
@@ -60,12 +68,70 @@ class PlaylistMusicScreenViewModel @Inject constructor(
     private val _allMusics = mutableStateListOf<Music>()
     val allMusics = _allMusics
 
+    private val _selectedMusicsState = MutableStateFlow<List<Music>>(emptyList())
+    val selectedMusicsState:StateFlow<List<Music>> = _selectedMusicsState
+
+    private val _selectingModeState = MutableStateFlow(false)
+    val selectingModeState:StateFlow<Boolean> = _selectingModeState
+
     init {
+        observePlaylist()
+    }
+
+    private fun observePlaylist(){
+        viewModelScope.launch {
+            val playlist = useGetPlaylistById.execute(savedStateHandle.get<String>("playlistId")!!.toInt())
+            savedStateHandle["playlist"] = playlist
+            editPlaylistName(playlist.name)
+        }
+    }
+
+
+    fun setSelectingMode(bool:Boolean){
+        _selectingModeState.value = bool
+    }
+    fun selectNewMusic(music: Music){
+        val lastList = selectedMusicsState.value.toMutableList()
+        lastList.add(music)
+        _selectedMusicsState.value = lastList.toList()
+    }
+
+    private fun cleanUpSelectedMusics(){
+        val lastList = selectedMusicsState.value.toMutableList()
+        lastList.clear()
+        _selectedMusicsState.value = lastList.toList()
+        setSelectingMode(false)
+    }
+
+    fun unSelectMusic(music: Music){
+        val lastList = selectedMusicsState.value.toMutableList()
+        lastList.remove(music)
+        _selectedMusicsState.value = lastList.toList()
+    }
+
+    suspend fun deletePlaylist(){
+        useDeletePlaylist.execute(state.value.playlist!!)
+    }
+
+    fun deleteAllSelectedMusics(
+        observeMusicCallback:() -> Unit
+    ){
+
+        viewModelScope.launch {
+            selectedMusicsState.value.forEach {
+                useDeletePlaylistMusic.execute(
+                    playlistId = savedStateHandle.get<String>("playlistId")!!.toInt(),
+                    musicId = it.id!!
+                )
+            }
+            cleanUpSelectedMusics()
+            observeMusicCallback()
+        }
     }
 
     fun getMusicImage(file: String) = useGetMusicImage.execute(file)
 
-     fun getMusicsNotInPlaylist(musics:List<Music>){
+    fun getMusicsNotInPlaylist(musics:List<Music>){
         useGetAllMusicFromLocalDatabase.invoke().onEach { res ->
             when(res){
                 is Resource.Loading -> {
@@ -112,12 +178,27 @@ class PlaylistMusicScreenViewModel @Inject constructor(
         _currentSelectedMusics.clear()
     }
 
-    fun addAllNewMusics(){
+    fun addAllNewMusics(
+        callbackObserveMusics:() -> Unit
+    ){
         viewModelScope.launch {
             currentSelectedMusics.forEach {
                 useAddNewMusicToPlaylist.execute(savedStateHandle.get<String>("playlistId")!!.toInt(), it)
             }
             resetSelectedMusic()
+            callbackObserveMusics()
+        }
+    }
+
+    fun changePlaylistName(){
+        viewModelScope.launch {
+            useEditPlaylistName.execute(
+                name = _playlistName.value,
+                id = savedStateHandle.get<String>("playlistId")!!.toInt()
+            )
+            switchEditMode()
+            editPlaylistName(state.value.playlist!!.name)
+            observePlaylist()
         }
     }
 

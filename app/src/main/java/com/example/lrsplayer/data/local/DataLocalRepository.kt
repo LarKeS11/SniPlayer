@@ -54,6 +54,10 @@ class DataLocalRepository(
         return databaseService.getPlaylistById(id)
     }
 
+    override suspend fun deletePlaylist(playlistEntity: PlaylistEntity) {
+        databaseService.deletePlaylist(playlistEntity)
+    }
+
     override fun saveImage(name: String, uri: Uri) {
         imageService.saveImage(uri = uri, name = name)
     }

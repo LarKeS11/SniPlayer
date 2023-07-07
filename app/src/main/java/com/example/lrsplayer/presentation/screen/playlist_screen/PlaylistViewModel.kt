@@ -24,10 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlaylistViewModel @Inject constructor(
-    private val useLocalSaveImageByNameAndUri: UseLocalSaveImageByNameAndUri,
-    private val useGetPlaylists: UseGetPlaylists,
-    private val useLocalSavePlaylist: UseLocalSavePlaylist,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
 ): ViewModel() {
 
 
