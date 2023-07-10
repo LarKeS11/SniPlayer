@@ -41,7 +41,6 @@ fun Navigate(
 
     NavHost(navController = navController, startDestination = Screen.MusicScreen.route){
 
-        Log.d("sdfsdfsdfds","#########")
 
         composable(
             route = Screen.SplashScreen.route
